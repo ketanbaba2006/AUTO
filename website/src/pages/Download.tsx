@@ -58,8 +58,7 @@ export const DownloadPage: React.FC = () => {
             </div>
 
             <a 
-              href={`../dist/${metadata.dmgFilename}`}
-              download
+              href={metadata.downloadPath}
               className="btn-primary" 
               style={{ padding: '16px 36px', fontSize: '16px' }}
             >
