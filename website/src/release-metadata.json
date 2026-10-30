@@ -1,0 +1,34 @@
+{
+  "productName": "AUTO",
+  "tagline": "Your Personal AI Desktop Companion.",
+  "headline": "Your Mac. Your AI Companion.",
+  "version": "1.0.0",
+  "buildNumber": "1",
+  "releaseDate": "2026-10-31",
+  "minimumMacOSVersion": "macOS 14.0 (Sonoma)",
+  "recommendedMacOSVersion": "macOS 14.4+ or macOS 15.0+ (Sequoia)",
+  "appBundleSize": "16 MB",
+  "dmgSize": "11 MB",
+  "dmgFilename": "AUTO-1.0.0.dmg",
+  "downloadPath": "/dist/AUTO-1.0.0.dmg",
+  "sha256": "9554b2b66561c73715ff8b26109cc7130d8080660f2d5fc742777f265481510a",
+  "releaseStatus": "Packaged & Verified (Local Release Ready)",
+  "codeSigningStatus": "Ad-Hoc Signed with Hardened Entitlements (Developer ID Pending)",
+  "pricing": "100% Free Forever",
+  "policies": {
+    "subscriptions": false,
+    "advertisements": false,
+    "mandatoryAccounts": false,
+    "paywalls": false,
+    "telemetry": false
+  },
+  "primaryAI": "Google Gemini API (multimodal visual reasoning)",
+  "optionalAI": "OmniRoute Gateway (compatible with local Ollama / LM Studio or remote proxies)",
+  "systemPermissions": [
+    "Microphone",
+    "Speech Recognition",
+    "Screen Recording",
+    "Accessibility",
+    "Input Monitoring"
+  ]
+}

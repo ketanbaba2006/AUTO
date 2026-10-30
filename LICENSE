@@ -1,0 +1,20 @@
+# Software License and Attribution
+
+## License Decision Status: PENDING
+
+The formal open-source license for AUTO is currently **Pending Decision** by the project author and maintainers.
+
+Until a specific license (e.g. MIT, Apache 2.0, GPL, or Apple Public Source License) is formally chosen and committed, all rights in the original AUTO source code, assets, and branding are reserved by the original project author.
+
+Users and developers are welcome to inspect, build, and run AUTO locally on their personal macOS machines for evaluation, research, and non-commercial development.
+
+---
+
+## Inspiration and Attribution
+
+AUTO is inspired by and references design and interaction concepts from the open-source **HeyClicky** project by Farza:
+- **Reference Repository**: https://github.com/farzaa/clicky
+- **Original Author**: Farza (https://github.com/farzaa)
+
+All original trademarks, mascot branding, and native Swift desktop companion architecture in AUTO have been independently authored.
+

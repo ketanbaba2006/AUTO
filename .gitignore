@@ -1,0 +1,56 @@
+# macOS System Files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon\r
+._*
+.Spotlight-V100
+.Trashes
+
+# Xcode and Swift Build Artifacts
+.build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xcuserdatad/
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+
+# Distribution and Packaging
+dist/
+*.dmg
+*.app/
+*.dSYM/
+*.zip
+*.tar.gz
+
+# Secrets and Local Configuration
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.cer
+*.mobileprovision
+*.keychain
+*.keystore
+agent_memory.json
+xcuserdata/
+
+# Node / Website Artifacts
+website/node_modules/
+website/dist/
+website/.next/
+website/out/
+website/build/
+.npm
+package-lock.json.bak

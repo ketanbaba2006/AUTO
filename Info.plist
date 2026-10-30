@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.auto.desktop.companion</string>
+    <key>CFBundleName</key>
+    <string>AUTO</string>
+    <key>CFBundleDisplayName</key>
+    <string>AUTO</string>
+    <key>CFBundleExecutable</key>
+    <string>AUTO</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>14.0</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSSupportsAutomaticGraphicsSwitching</key>
+    <true/>
+    <key>LSUIElement</key>
+    <false/>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>AUTO requires microphone access for push-to-talk voice conversations.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>AUTO uses Apple Speech recognition to transcribe your spoken voice instructions.</string>
+    <key>NSScreenCaptureUsageDescription</key>
+    <string>AUTO uses ScreenCaptureKit to understand visible display contents and guide desktop actions.</string>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>AUTO uses system automation and Accessibility to inspect UI controls and assist desktop workflows.</string>
+</dict>
+</plist>
+

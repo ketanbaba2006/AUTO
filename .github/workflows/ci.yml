@@ -1,0 +1,46 @@
+name: AUTO CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build & Test on macOS
+    runs-on: macos-14
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verify Environment & Swift
+        run: |
+          sw_vers
+          xcodebuild -version
+          swift --version
+
+      - name: Build Debug Binary
+        run: |
+          swift build
+
+      - name: Run Automated Test Suite (84 Tests)
+        run: |
+          ./.build/debug/AUTO --test
+
+      - name: Build Optimized Release Binary
+        run: |
+          swift build -c release
+
+      - name: Validate Packaging Pipeline
+        run: |
+          ./scripts/package_app.sh
+          ls -la dist/
+          shasum -a 256 dist/AUTO-1.0.0.dmg
+
