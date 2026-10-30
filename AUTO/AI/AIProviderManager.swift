@@ -2,9 +2,9 @@
 //  AIProviderManager.swift
 //  AUTO
 //
-//  Central manager and task router for AI providers.
-//  Coordinates primary Gemini and optional OmniRoute engines, task-based routing,
-//  dynamic model discovery, graceful fallback, and streaming.
+//  Hybrid AI Manager for Natural Language Understanding & Reasoning.
+//  Coordinates Google Gemini as the sole AI reasoning provider,
+//  integrating with local Swift execution and providing offline state handling.
 //
 
 import Foundation
@@ -26,7 +26,6 @@ public final class AIProviderManager: ObservableObject, AIProviderService {
     public static let shared = AIProviderManager()
     
     public let geminiProvider: GeminiProvider
-    public let omniRouteProvider: OmniRouteProvider
     public let modelDiscoveryManager: ModelDiscoveryManager
     public let promptManager: PromptManager
     
@@ -36,128 +35,89 @@ public final class AIProviderManager: ObservableObject, AIProviderService {
     
     public init(
         geminiProvider: GeminiProvider = GeminiProvider(),
-        omniRouteProvider: OmniRouteProvider = OmniRouteProvider(),
         modelDiscoveryManager: ModelDiscoveryManager = .shared,
         promptManager: PromptManager = .shared
     ) {
         self.geminiProvider = geminiProvider
-        self.omniRouteProvider = omniRouteProvider
         self.modelDiscoveryManager = modelDiscoveryManager
         self.promptManager = promptManager
     }
     
     public var activeProviderType: AIProviderType {
-        return ApplicationState.shared.activeAIProvider
+        return .gemini
     }
     
     public func getProvider(for type: AIProviderType) -> AIProvider {
-        switch type {
-        case .gemini:
-            return geminiProvider
-        case .omniRoute:
-            return omniRouteProvider
-        }
+        return geminiProvider
     }
     
     public var currentProvider: AIProvider {
-        return getProvider(for: activeProviderType)
+        return geminiProvider
     }
     
-    // MARK: - Task-Based Routing
+    // MARK: - Task-Based Routing (Gemini is sole Language Reasoning Provider)
     public func resolveProvider(for task: AITaskType?) -> AIProvider {
-        guard let task = task else {
-            return currentProvider
-        }
-        
-        let rules = ApplicationState.shared.aiRoutingRules
-        if let matched = rules.first(where: { $0.task == task }) {
-            // Check if OmniRoute is requested but disabled or not configured
-            if matched.provider == .omniRoute {
-                let omniConfig = ApplicationState.shared.omniRouteConfig
-                if !omniConfig.isEnabled {
-                    AppLogger.shared.notice("Routing rule requested OmniRoute for \(task.rawValue), but OmniRoute is disabled. Falling back to Gemini.", category: .ai)
-                    return geminiProvider
-                }
-            }
-            return getProvider(for: matched.provider)
-        }
-        
-        return currentProvider
+        return geminiProvider
     }
     
     // MARK: - Verification & Discovery
-    public func testConnection(for type: AIProviderType) async throws -> Bool {
-        let provider = getProvider(for: type)
-        return try await provider.testConnection()
+    public func testConnection(for type: AIProviderType = .gemini) async throws -> Bool {
+        return try await geminiProvider.testConnection()
     }
     
-    public func discoverModels(for type: AIProviderType) async throws -> [AIModelInfo] {
-        let provider = getProvider(for: type)
-        return try await modelDiscoveryManager.discoverModels(for: provider)
+    public func discoverModels(for type: AIProviderType = .gemini) async throws -> [AIModelInfo] {
+        return try await modelDiscoveryManager.discoverModels(for: geminiProvider)
     }
     
-    // MARK: - Response Generation with Intelligent Fallback
+    // MARK: - Response Generation with Offline Handling
     public func generateResponse(messages: [AIMessage], context: AIRequestContext) async throws -> AICompletionResponse {
         isProcessing = true
-        activeProviderStatus = "Generating..."
+        activeProviderStatus = "Reasoning with Gemini..."
         defer { isProcessing = false }
         
-        let targetProvider = resolveProvider(for: context.targetTask)
-        AppLogger.shared.info("Dispatching AI request to \(targetProvider.providerType.rawValue)...", category: .ai)
-        
         do {
-            let response = try await targetProvider.generateResponse(messages: messages, context: context)
+            let response = try await geminiProvider.generateResponse(messages: messages, context: context)
             activeProviderStatus = "Ready"
             lastError = nil
+            ApplicationState.shared.isOfflineMode = false
             return response
         } catch let error as AUTOError {
-            // Fallback: If OmniRoute failed due to network / unavailable server, fall back to Gemini
-            if targetProvider.providerType == .omniRoute {
-                AppLogger.shared.warning("OmniRoute failed with error: \(error.localizedDescription). Attempting fallback to primary Gemini provider...", category: .ai)
-                ApplicationState.shared.statusMessage = "OmniRoute unavailable. Using Gemini..."
-                
-                do {
-                    let fallbackResponse = try await geminiProvider.generateResponse(messages: messages, context: context)
-                    activeProviderStatus = "Ready (via Gemini fallback)"
-                    return fallbackResponse
-                } catch let fallbackErr as AUTOError {
-                    self.lastError = fallbackErr
-                    activeProviderStatus = "Error"
-                    throw fallbackErr
-                } catch {
-                    let wrapped = AUTOError.aiProviderError(provider: "Gemini", message: error.localizedDescription, statusCode: nil)
-                    self.lastError = wrapped
-                    activeProviderStatus = "Error"
-                    throw wrapped
-                }
-            }
             self.lastError = error
-            activeProviderStatus = "Error"
+            activeProviderStatus = "Offline / Unavailable"
+            ApplicationState.shared.isOfflineMode = true
             throw error
         } catch {
-            let wrapped = AUTOError.aiProviderError(provider: targetProvider.providerType.rawValue, message: error.localizedDescription, statusCode: nil)
+            let wrapped = AUTOError.aiProviderError(provider: "Google Gemini", message: error.localizedDescription, statusCode: nil)
             self.lastError = wrapped
             activeProviderStatus = "Error"
+            ApplicationState.shared.isOfflineMode = true
             throw wrapped
         }
     }
     
     // MARK: - Streaming
     public func streamResponse(messages: [AIMessage], context: AIRequestContext) -> AsyncThrowingStream<String, Error> {
-        let targetProvider = resolveProvider(for: context.targetTask)
-        return targetProvider.streamResponse(messages: messages, context: context)
+        return geminiProvider.streamResponse(messages: messages, context: context)
     }
     
-    // MARK: - Multimodal Screen Understanding
+    // MARK: - Privacy-Preserving Screen Understanding
     public func processScreenUnderstanding(request: ScreenUnderstandingRequest) async throws -> AICompletionResponse {
         var base64Screenshots: [String] = []
-        for screenshot in request.screenshotData {
-            do {
-                let processed = try ImageProcessor.shared.processScreenshot(data: screenshot)
-                base64Screenshots.append(processed)
-            } catch {
-                AppLogger.shared.error("Failed to process screenshot: \(error)", category: .screen)
+        
+        // Privacy Gate: Screenshots are only transmitted if user explicitly authorized visual reasoning
+        let allowVisualTransmission = ApplicationState.shared.allowScreenshotTransmission
+        
+        if allowVisualTransmission {
+            for screenshot in request.screenshotData {
+                do {
+                    let processed = try ImageProcessor.shared.processScreenshot(data: screenshot)
+                    base64Screenshots.append(processed)
+                } catch {
+                    AppLogger.shared.error("Failed to process screenshot: \(error)", category: .screen)
+                }
             }
+        } else {
+            AppLogger.shared.info("Zero-Screenshot Privacy: Screenshot images omitted from Gemini payload. Sending local text context only.", category: .screen)
         }
         
         var messages = request.conversationHistory

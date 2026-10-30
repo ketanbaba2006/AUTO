@@ -84,8 +84,8 @@ public struct AboutView: View {
                             .foregroundColor(BrandTheme.Colors.purple)
                         
                         bulletPoint(icon: "heart.fill", title: "HeyClicky Reference", description: "Interaction patterns inspired by the open-source HeyClicky project by Farza.")
-                        bulletPoint(icon: "sparkles", title: "Google Gemini API", description: "Multimodal visual reasoning powered by Google DeepMind's Gemini models.")
-                        bulletPoint(icon: "network", title: "OmniRoute Gateway", description: "Universal model gateway support for local and remote AI deployments.")
+                        bulletPoint(icon: "sparkles", title: "Google Gemini AI", description: "High-level reasoning and instruction understanding powered by Google Gemini.")
+                        bulletPoint(icon: "cpu", title: "Native Swift Engine", description: "100% local, sandboxed desktop execution, ScreenCaptureKit, and Vision OCR.")
                     }
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)

@@ -28,7 +28,7 @@ VoiceActivityDetector    ApplicationState.currentTranscript
                                ▼
                       ConversationManager
                                │
-                               ▼ (AI Model Dispatch: Gemini/OmniRoute)
+                               ▼ (AI Model Dispatch: Google Gemini)
                      AI Response Text
                                │
                                ▼
@@ -52,7 +52,7 @@ The voice pipeline is driven by a 7-state finite state machine defined in `Voice
 | `.idle` | "Hold ⌃ Control to Talk" | Gray | No | No | Microphone is completely unpowered. System is awaiting hotkey trigger. |
 | `.listening` | "Listening..." | Cyan | Yes | No | Audio engine active, streaming PCM buffers to Speech framework, RMS metering live. |
 | `.transcribing` | "Transcribing..." | Blue | Yes | Yes | Microphone stopped, awaiting final recognized speech utterance from Apple Speech. |
-| `.thinking` | "AUTO is thinking..." | Purple | Yes | Yes | Transcript dispatched to Gemini or OmniRoute, awaiting response text. |
+| `.thinking` | "AUTO is thinking..." | Purple | Yes | Yes | Transcript dispatched to Gemini, awaiting response text. |
 | `.speaking` | "Speaking..." | Green | Yes | Yes | Response is actively being read aloud via `AVSpeechSynthesizer`. |
 | `.interrupted` | "Interrupted" | Orange | Yes | No | User held ⌃ Control while assistant was speaking/thinking; synthesis instantly aborted. |
 | `.failed` | "Voice session failed" | Red | No | No | Missing microphone permission or unrecoverable audio engine error. |
@@ -105,7 +105,7 @@ The voice pipeline is driven by a 7-state finite state machine defined in `Voice
 1. User holds ⌃ Control while AUTO is speaking (`voiceState == .speaking`) or thinking (`voiceState == .thinking`).
 2. `VoiceSessionManager.handlePushToTalk(transition: .pressed)` inspects `voiceState.canInterrupt`.
 3. Calls `speechOutputManager.stopSpeaking()`, which immediately terminates audio output at the hardware layer (`.immediate`).
-4. Cancels the active `Task` querying Gemini / OmniRoute.
+4. Cancels the active `Task` querying Gemini.
 5. Invokes `conversationManager.cancelCurrentRequest()`.
 6. Transitions state to `.interrupted` and immediately launches a new `.listening` turn for the user's new question.
 

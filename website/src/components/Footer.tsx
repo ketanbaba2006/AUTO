@@ -78,8 +78,8 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
               Inspired by and referencing design patterns from the open-source <strong>HeyClicky</strong> project by Farza.
             </p>
             <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-              Primary AI: Google Gemini<br />
-              Optional Gateway: OmniRoute
+              Reasoning: Google Gemini<br />
+              Execution: 100% Native Local Swift Engine
             </div>
           </div>
         </div>

@@ -17,7 +17,7 @@ AUTO is an independent native macOS AI desktop companion inspired by the open-so
 |---|---|---|---|---|
 | **Primary Cyan** | Electric Cyan | `#00D9FF` | `(0, 217, 255)` | Mascot eyes, listening aura, active hotkey highlights, primary buttons |
 | **Electric Blue** | Orbit Blue | `#1A99FF` | `(26, 153, 255)` | Headphone glows, transcribing state, secondary interactive accents |
-| **Neon Purple** | Quantum Purple | `#A647FA` | `(166, 71, 250)` | Thinking state aura, OmniRoute engine badge, title gradient endpoint |
+| **Neon Purple** | Quantum Purple | `#A647FA` | `(166, 71, 250)` | Thinking state aura, reasoning badge, title gradient endpoint |
 | **Deep Navy** | Deep Space Navy | `#090C13` | `(9, 12, 19)` | Main companion panel backdrop, mascot canvas, About dialog background |
 | **Surface Navy** | Card Surface Navy | `#121621` | `(18, 22, 33)` | Grouped control cards, setting rows, conversation bubbles |
 | **Foreground** | High-Contrast White | `#FFFFFF` | `(255, 255, 255)` | Primary titles, readable typography, high-contrast labels |
@@ -125,7 +125,7 @@ The companion panel features `AUTOMascotView`, rendering the official mascot wit
    - Features 88x88 official mascot artwork with ambient back-glow.
    - Displays version `1.0.0 (Build 1)` and system compatibility (`macOS 14.0 Sonoma or later`).
    - Summarizes core commitments (100% Free Forever, Zero Telemetry, Native Swift Architecture).
-   - Acknowledges open-source inspirations: HeyClicky, Google Gemini, and OmniRoute.
+   - Acknowledges open-source inspirations: HeyClicky and Google Gemini.
 
 ---
 

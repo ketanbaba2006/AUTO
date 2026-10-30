@@ -34,10 +34,6 @@ public final class CompanionManager: ObservableObject {
             key: KeychainManager.geminiApiKeyAccount,
             service: KeychainManager.defaultService
         )
-        container.applicationState.hasOmniRouteKey = container.keychainService.hasKey(
-            key: KeychainManager.omniRouteApiKeyAccount,
-            service: KeychainManager.defaultService
-        )
         
         // Refresh permissions & displays
         container.permissionService.refreshPermissions()

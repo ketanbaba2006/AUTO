@@ -59,11 +59,8 @@ flowchart TD
 
     ScreenCap["👁️ Screen Intelligence<br/>(ScreenCaptureKit + Vision)"] -->|"Ephemeral RAM Buffer"| Routing
 
-    Routing -->|"Primary Engine"| Gemini["☁️ Google Gemini API<br/>(Multimodal Visual Reasoning)"]
-    Routing -->|"Optional Gateway"| OmniRoute["🔌 OmniRoute Gateway<br/>(Local Ollama / LM Studio)"]
-
-    Gemini --> Planner["📋 Task Planner & Agent<br/>(16+ Modular Tools across 6 Domains)"]
-    OmniRoute --> Planner
+    Routing -->|"Cloud Reasoning"| Gemini["☁️ Google Gemini API<br/>(Instruction Parsing & Step Planning)"]
+    Gemini --> Planner["📋 AUTO Native Engine<br/>(13 Local Swift Services & 16+ Modular Tools)"]
 
     Planner --> Safety["🛡️ 3-Tier Safety Gating<br/>(Low / Medium / High Risk Confirmation)"]
     Safety -->|"User Confirms"| Automation["🖱️ Desktop Automation<br/>(AXUIElement + CoreGraphics)"]
@@ -137,11 +134,11 @@ flowchart TD
 </details>
 
 <details>
-<summary><b>6. 🔌 Dual AI Infrastructure: Gemini + Optional OmniRoute (Click to expand)</b></summary>
+<summary><b>6. ⚡ Hybrid AI Architecture: Gemini Reasoning + Native Local Swift Engine (Click to expand)</b></summary>
 <br/>
 
-- **Primary Engine**: Google Gemini API (`gemini-2.5-flash` / `gemini-1.5-pro`) providing high-speed multimodal visual reasoning and spatial grounding.
-- **Optional Gateway**: OmniRoute support for running local open-source models via Ollama or LM Studio, or custom corporate proxies.
+- **Cloud Reasoning**: Google Gemini API (`gemini-2.5-flash` / `gemini-2.5-pro`) providing high-speed natural language understanding, intent parsing, and step planning.
+- **Local Native Engine**: 13 local Swift services handling 100% of desktop execution, ScreenCaptureKit, on-device Apple Vision OCR, and SQLite persistent storage.
 - **Hardware-Backed Keychain**: All API keys are encrypted in Apple's hardware Secure Enclave / Keychain services with `kSecAttrAccessibleWhenUnlockedThisDeviceOnly`.
 
 </details>
@@ -230,14 +227,14 @@ swift run AUTO --test
   [PASS] Gemini Generate & Spatial Points & Tokens
   [PASS] Gemini 403 Auth Error Mapping
   [PASS] Gemini 429 Rate Limit Error Mapping
-  [PASS] OmniRoute Model Discovery (OpenAI Format)
-  [PASS] OmniRoute Chat Completions & Spatial Tagging
-  [PASS] OmniRoute 502 Bad Gateway Error Mapping
+  [PASS] Gemini Intent Interpretation & Structured Actions
+  [PASS] Local Action Validation & Bounds Clamping
+  [PASS] Local Apple Vision OCR Engine
   [PASS] SpatialPoint Regex Point Parsing
   [PASS] PromptManager Template Generation
   [PASS] ConversationMemory History Limits & Pruning
   [PASS] Task-Based AI Routing Resolution
-  [PASS] OmniRoute Fallback to Gemini
+  [PASS] Local Offline Behavior & Fixed Commands
   [PASS] ImageProcessor Screenshot Compression
   [PASS] Mock Keychain Storage & Deletion
   [PASS] Push-to-Talk Press and Release Detection

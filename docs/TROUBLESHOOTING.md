@@ -54,25 +54,24 @@ macOS ScreenCaptureKit requires **Screen Recording** permission. If granted whil
 1. Verify your key in [Google AI Studio](https://aistudio.google.com/app/apikey).
 2. Open **Settings -> Gemini** in AUTO.
 3. Click **Remove Key**, paste the fresh key, click **Save to Keychain**, and click **Test API Connection**.
-4. If encountering 429 limits, wait 60 seconds or switch to a secondary key or local OmniRoute model.
+4. If encountering 429 limits, wait 60 seconds or switch to a secondary key. Fixed voice commands and screen OCR continue to work locally offline.
 
 ---
 
-## 5. OmniRoute Gateway Shows "Connection Failed"
+## 5. Offline Mode & Local Engine Fallback
 
-### Cause
-The local model runner (Ollama, LM Studio) or OmniRoute gateway is not running or listening on a different port.
+### Behavior
+When no internet connection is available or the Gemini API is unreachable, AUTO automatically shifts into **Local Offline Mode**.
 
-### Resolution
-1. Check if your local server is running:
-```bash
-curl http://localhost:20128/v1/models
-# or for Ollama directly
-curl http://localhost:11434/v1/models
-```
-2. Open **Settings -> OmniRoute** in AUTO.
-3. Verify the **Base URL** matches your local server endpoint.
-4. Click **Test Endpoint Connection**.
+### What Works Locally Offline
+1. **Push-to-Talk Fixed Commands**: "Where is my cursor?", "Read my screen", "Emergency stop", "List files on Desktop".
+2. **Apple Vision OCR**: On-device text recognition continues without network access.
+3. **Local SQLite Memory**: Querying previous context and preferences.
+4. **Desktop Automation & Failsafes**: All CoreGraphics cursor movements, clicks, and Emergency Stop remain 100% active.
+
+### Resolution for Full Reasoning
+1. Check your network or Wi-Fi connection.
+2. Verify that `generativelanguage.googleapis.com` is reachable from your network.
 
 ---
 

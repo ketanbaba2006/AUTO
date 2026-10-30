@@ -27,7 +27,7 @@ public enum BrandTheme {
         public static let electricBlue = Color(red: 0.10, green: 0.60, blue: 1.0)
         public static let nsElectricBlue = NSColor(red: 0.10, green: 0.60, blue: 1.0, alpha: 1.0)
         
-        /// Neon Purple: Accent, thinking state, OmniRoute highlight
+        /// Neon Purple: Accent, thinking state, autonomous workflow highlight
         public static let purple = Color(red: 0.65, green: 0.28, blue: 0.98)
         public static let nsPurple = NSColor(red: 0.65, green: 0.28, blue: 0.98, alpha: 1.0)
         

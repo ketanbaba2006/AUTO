@@ -1,33 +1,38 @@
-# AUTO AI Architecture: Dual Provider & Task Routing (Fragment 2)
+# AUTO AI Architecture: Hybrid Reasoning & Local Native Engine
 
 ## 1. Overview
 
-AUTO operates a decoupled, protocol-oriented AI infrastructure designed around two complementary systems:
-- **Primary Engine**: Google Gemini API (`https://generativelanguage.googleapis.com/v1beta`)
-- **Optional Gateway**: OmniRoute API Gateway (`http://localhost:20128/v1` or remote endpoints)
+AUTO operates a unified **Hybrid AI Architecture** designed around strict domain separation:
+- **Cloud Reasoning Layer**: Google Gemini API (`https://generativelanguage.googleapis.com/v1beta`)
+- **Local Native Engine**: 13 Native Swift Services running directly on macOS
 
-This design ensures AUTO remains fully functional as a desktop companion out-of-the-box using Google Gemini, while giving power users and developers the freedom to route queries or specific tasks to local or private models hosted via OmniRoute.
+Google Gemini handles high-level cognitive operations (natural language understanding, multi-turn dialogue, task decomposition, and structured action proposals). The AUTO Native Engine executes all physical desktop actions, screen capture, on-device Apple Vision OCR, SQLite memory storage, and safety enforcement locally.
 
 ```mermaid
 flowchart TD
-    User["User Query / Voice Session"] --> ConvManager["ConversationManager"]
-    Screen["Screen Captures"] --> ImageProc["ImageProcessor"]
-    ImageProc --> ConvManager
-    ConvManager --> AIProvManager["AIProviderManager (Router)"]
+    User["User Query / Voice Session"] --> ConvManager["AutoConversationManager"]
+    Screen["Screen Captures (ScreenCaptureKit)"] --> Vision["Apple Vision OCR (On-Device)"]
+    Vision --> ConvManager
+    ConvManager --> AIProvManager["AIProviderManager (Privacy Gate)"]
     
-    subgraph Routing ["Task-Based AI Routing"]
-        AIProvManager -->|NLP / Screen / Guidance| GeminiProv["GeminiProvider (Primary)"]
-        AIProvManager -->|Alternative / Local Models| OmniProv["OmniRouteProvider (Optional)"]
+    subgraph CloudReasoning ["External Cloud Layer: Google Gemini"]
+        AIProvManager -->|Sanitized Context & OCR Text| GeminiProv["GeminiProvider (Google Gemini API)"]
+        GeminiProv -->|Structured Action Proposals| ActionValidator["AutoActionValidator"]
     end
     
     subgraph KeychainSec ["macOS Keychain Services"]
         GeminiKey["Gemini API Key"] -.-> GeminiProv
-        OmniKey["OmniRoute Token"] -.-> OmniProv
     end
     
-    GeminiProv -->|Fallback when OmniRoute Offline| AIProvManager
-    GeminiProv -->|Parsed Text + Spatial Points| AppState["ApplicationState / CursorManager"]
-    OmniProv -->|Parsed Text + Spatial Points| AppState
+    subgraph LocalEngine ["AUTO Native Engine (100% Local Swift)"]
+        ActionValidator --> Safety["AutoSafetyManager (3-Tier Risk & Emergency Stop)"]
+        Safety --> Exec["AutoExecutionEngine"]
+        Exec --> Cursor["AutoCursorManager (CoreGraphics)"]
+        Exec --> Keyboard["AutoKeyboardManager (CGEvent)"]
+        Exec --> Memory["AutoMemoryManager (Local SQLite)"]
+        Exec --> Files["AutoFileManager (Sandboxed Paths)"]
+        Exec --> Verifier["AutoResultVerifier"]
+    end
 ```
 
 ---
@@ -35,7 +40,7 @@ flowchart TD
 ## 2. Core Protocols and Abstractions
 
 ### 2.1 `AIProvider` Protocol
-Located in [`AUTO/AI/AIProvider.swift`](file:///Users/ketanbaba/Desktop/Extra/AUTO/AUTO/AI/AIProvider.swift), all AI providers implement:
+Located in [`AUTO/AI/AIProvider.swift`](file:///Users/ketanbaba/Desktop/Extra/AUTO/AUTO/AI/AIProvider.swift):
 ```swift
 public protocol AIProvider: AnyObject, Sendable {
     var providerType: AIProviderType { get }
@@ -49,11 +54,10 @@ public protocol AIProvider: AnyObject, Sendable {
 
 ### 2.2 `AIProviderService` & Central Manager
 Located in [`AUTO/AI/AIProviderManager.swift`](file:///Users/ketanbaba/Desktop/Extra/AUTO/AUTO/AI/AIProviderManager.swift), `AIProviderManager` coordinates:
-1. Dynamic model discovery.
+1. Dynamic Gemini model discovery and caching.
 2. Connection verification.
-3. Task-based request routing.
-4. Automatic fallback from OmniRoute to Gemini when local servers are offline.
-5. Multimodal screenshot downsampling and preparation.
+3. Zero-Screenshot Privacy Gating (OCR text sent by default; screenshot transmission requires explicit user toggle).
+4. Token usage tracking and error mapping.
 
 ---
 
@@ -66,89 +70,29 @@ The Gemini integration is implemented in [`AUTO/AI/GeminiProvider.swift`](file:/
 - **Content Generation**: `POST https://generativelanguage.googleapis.com/v1beta/models/{modelId}:generateContent?key={apiKey}`
 - **SSE Streaming**: `POST https://generativelanguage.googleapis.com/v1beta/models/{modelId}:streamGenerateContent?alt=sse&key={apiKey}`
 
-### 3.2 Multimodal Payload Structure
-Screenshots are compressed to JPEG (quality: 0.75, max dimension 1536px) by `ImageProcessor` and attached using Gemini's native `inline_data` specification:
-```json
-{
-  "contents": [
-    {
-      "role": "user",
-      "parts": [
-        { "text": "What application is in the background?" },
-        {
-          "inline_data": {
-            "mime_type": "image/jpeg",
-            "data": "<BASE64_JPEG_STRING>"
-          }
-        }
-      ]
-    }
-  ],
-  "systemInstruction": {
-    "parts": [{ "text": "You are AUTO, an intelligent native macOS desktop companion..." }]
-  },
-  "generationConfig": {
-    "temperature": 0.7,
-    "maxOutputTokens": 2048
-  }
-}
-```
+### 3.2 Supported Models
+- **`gemini-2.5-flash`** (Default): Fast, multimodal, ultra-responsive model optimized for real-time desktop interactions.
+- **`gemini-2.5-pro`**: High-capacity reasoning model for complex multi-step workflows.
+- **`gemini-2.0-flash`**: High-speed conversational fallback.
 
 ### 3.3 Token Usage Tracking
-Gemini's `usageMetadata` object (`promptTokenCount`, `candidatesTokenCount`, `totalTokenCount`) is decoded and exposed via `ApplicationState.shared.lastTokenUsage` for live visibility in Settings.
+Gemini's `usageMetadata` (`promptTokenCount`, `candidatesTokenCount`, `totalTokenCount`) is decoded and published via `ApplicationState.shared.lastTokenUsage` for live visibility in Settings.
 
 ---
 
-## 4. OmniRoute Gateway Integration
+## 4. Privacy & Zero-Screenshot Transmission
 
-The OmniRoute client is implemented in [`AUTO/AI/OmniRouteProvider.swift`](file:///Users/ketanbaba/Desktop/Extra/AUTO/AUTO/AI/OmniRouteProvider.swift).
-
-### 4.1 Connection Profiles
-Users can configure multiple profiles (e.g., Local Gateway, Home Lab, Remote Host):
-```swift
-public struct OmniRouteProfile: Identifiable, Codable, Equatable, Sendable {
-    public var id: UUID
-    public var name: String
-    public var baseURL: String // default: http://localhost:20128/v1
-    public var apiKeyAccount: String
-    public var connectionType: ConnectionType // .local or .remote
-    public var isEnabled: Bool
-    public var defaultModel: String
-    public var lastConnectionStatus: String?
-}
-```
-
-### 4.2 OpenAI-Compatible API Support
-- Model discovery queries `GET /v1/models` with Bearer auth.
-- Chat completions queries `POST /v1/chat/completions` with streaming SSE support (`data: [DONE]`).
+By default, AUTO does NOT upload raw screenshot pixels to the cloud:
+1. `AutoScreenManager` captures display buffers locally via `ScreenCaptureKit`.
+2. Apple Vision framework (`VNRecognizeTextRequest`) extracts text and element bounding boxes locally on the Apple Silicon Neural Engine.
+3. The extracted text structure is provided to Gemini.
+4. If the user explicitly enables **Allow Screenshot Transmission** in Settings, downsampled JPEG captures (70% quality, max dimension 1920px) are transmitted over TLS for multimodal vision analysis.
 
 ---
 
-## 5. Task-Based Routing Rules
+## 5. Local Execution Guarantee
 
-Users can configure AI routing per task in Settings > AI Routing:
-| Task (`AITaskType`) | Default Provider | Fallback Strategy |
-| :--- | :--- | :--- |
-| **Natural Language Processing** | Google Gemini | None (Primary) |
-| **Screen Understanding** | Google Gemini | None (Primary) |
-| **Main Conversation** | Google Gemini | User-selected provider |
-| **Contextual Reasoning** | Google Gemini | None (Primary) |
-| **Alternative Model Request** | OmniRoute Gateway | Falls back to Gemini if server is down |
-| **User Selected Model** | Selected OmniRoute model | Alerts user if model is unreachable |
-
----
-
-## 6. Prompt Management and Spatial Tagging
-
-[`AUTO/AI/PromptManager.swift`](file:///Users/ketanbaba/Desktop/Extra/AUTO/AUTO/AI/PromptManager.swift) defines standardized instructions that instruct AI models to output target coordinate tags:
-```
-[POINT:x,y:Target Label:screenN]
-```
-Where:
-- `x`: Normalized horizontal position (0.00 to 1.00)
-- `y`: Normalized vertical position (0.00 to 1.00)
-- `Target Label`: Label of the UI control
-- `screenN`: Display identifier (e.g., screen1, screen2)
-
-`SpatialPoint.parsePoints(from:)` parses these tags and forwards target coordinates to `CursorManager`.
-
+No cloud model is ever permitted to execute shell scripts, send raw keyboard events, or click UI elements autonomously:
+- All proposals pass through `AutoActionValidator` to enforce coordinate bounds on active `NSScreen` instances.
+- Destructive and High-Risk operations are gated by `AutoSafetyManager` requiring explicit human modal approval.
+- An instantaneous Emergency Stop (<10ms) releases all hardware inputs immediately if the user taps ESC or types `abort`.

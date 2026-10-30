@@ -269,7 +269,7 @@ export const Home: React.FC<HomeProps> = ({ setActiveTab }) => {
               { step: '1', title: 'Download AUTO', desc: 'Get the verified AUTO-1.0.0.dmg package.' },
               { step: '2', title: 'Install Application', desc: 'Drag AUTO into your macOS /Applications folder.' },
               { step: '3', title: 'Configure Gemini', desc: 'Save your Google Gemini API key to macOS Keychain.' },
-              { step: '4', title: 'Optional OmniRoute', desc: 'Optionally connect local models (Ollama, LM Studio).' },
+              { step: '4', title: 'Hybrid Local Engine', desc: '13 native Swift services run 100% locally on your Mac.' },
               { step: '5', title: 'Grant Permissions', desc: 'Allow Accessibility, Mic, and Screen Recording.' },
               { step: '6', title: 'Hold Control to Talk', desc: 'Press and hold ⌃ to speak naturally anytime.' },
               { step: '7', title: 'Ask for Assistance', desc: 'Ask about screen content, files, or multi-step tasks.' },

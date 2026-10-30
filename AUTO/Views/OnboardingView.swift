@@ -202,11 +202,11 @@ public struct OnboardingView: View {
             }
             
             VStack(alignment: .leading, spacing: 4) {
-                Text("Optional OmniRoute Gateway")
+                Text("Hybrid AI Architecture")
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(BrandTheme.Colors.cyan)
                 
-                Text("You can also connect local LLMs (Ollama, LM Studio) or custom endpoints via OmniRoute anytime in Settings. OmniRoute is completely optional.")
+                Text("Google Gemini handles natural language understanding and reasoning, while screen capture, Vision OCR, memory, and automation execute 100% locally on your Mac.")
                     .font(.system(size: 10))
                     .foregroundColor(.gray.opacity(0.85))
             }

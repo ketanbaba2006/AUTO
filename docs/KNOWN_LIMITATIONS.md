@@ -32,7 +32,7 @@ In commitment to transparency and engineering integrity, this document details a
 ## 5. Cloud AI Network & Quota Constraints
 - **Platform Behavior**: While AUTO is 100% free software, Google Gemini is an external cloud service operated by Google DeepMind.
 - **Companion Impact**: An active internet connection is required when using Gemini. Gemini API keys are subject to Google AI Studio's pricing, quotas, and requests-per-minute limits.
-- **Offline Alternative**: For 100% offline and free local AI reasoning, users can connect local open-source models (e.g. Llama 3 via Ollama) through the optional OmniRoute Gateway.
+- **Offline Alternative**: For 100% offline operations, AUTO provides local fixed voice commands, on-device Apple Vision OCR, local SQLite memory, and hardware failsafes without internet connectivity. Complex multi-step reasoning gracefully pauses until network connectivity returns.
 
 ---
 

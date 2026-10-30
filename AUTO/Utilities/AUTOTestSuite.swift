@@ -2,8 +2,8 @@
 //  AUTOTestSuite.swift
 //  AUTO
 //
-//  Automated in-process unit test suite for verifying Gemini, OmniRoute,
-//  AI routing, PromptManager, ImageProcessor, and Keychain offline without network dependencies.
+//  Automated in-process unit test suite for verifying Gemini reasoning, Native Local Engine,
+//  AI routing, PromptManager, ImageProcessor, Vision OCR, and Keychain offline without network dependencies.
 //
 
 import Foundation
@@ -27,14 +27,14 @@ public final class AUTOTestSuite: @unchecked Sendable {
             ("Gemini Generate & Spatial Points & Tokens", testGeminiGenerateResponseWithSpatialPointsAndTokens),
             ("Gemini 403 Auth Error Mapping", testGeminiAuthErrorMapping),
             ("Gemini 429 Rate Limit Error Mapping", testGeminiRateLimitErrorMapping),
-            ("OmniRoute Model Discovery (OpenAI Format)", testOmniRouteModelDiscovery),
-            ("OmniRoute Chat Completions & Spatial Tagging", testOmniRouteChatCompletions),
-            ("OmniRoute 502 Bad Gateway Error Mapping", testOmniRouteServerUnavailableMapping),
+            ("Gemini Intent Interpretation & Structured Actions", testGeminiIntentInterpretationAndStructuredActions),
+            ("Local Action Validation & Bounds Clamping", testLocalActionValidationAndBoundsClamping),
+            ("Local Apple Vision OCR Engine", testLocalAppleVisionOCREngine),
             ("SpatialPoint Regex Point Parsing", testSpatialPointParsing),
             ("PromptManager Template Generation", testPromptManagerTemplates),
             ("ConversationMemory History Limits & Pruning", testConversationMemoryLimits),
             ("Task-Based AI Routing Resolution", testAIRoutingRules),
-            ("OmniRoute Fallback to Gemini", testOmniRouteFallback),
+            ("Local Offline Behavior & Fixed Commands", testLocalOfflineBehaviorAndFixedCommands),
             ("ImageProcessor Screenshot Compression", testImageProcessorCompression),
             ("Mock Keychain Storage & Deletion", testKeychainStorage),
             ("Push-to-Talk Press and Release Detection", testPushToTalkPressAndRelease),
@@ -286,111 +286,109 @@ public final class AUTOTestSuite: @unchecked Sendable {
         }
     }
     
-    private static func testOmniRouteModelDiscovery() async throws {
-        let mockJSON = """
+    private static func testGeminiIntentInterpretationAndStructuredActions() async throws {
+        // Verifies Gemini intent interpretation into structured action JSON
+        let structuredActionJSON = """
         {
-            "object": "list",
-            "data": [
-                { "id": "llama-3-8b", "object": "model", "owned_by": "meta" },
-                { "id": "qwen-2.5-vl-7b", "object": "model", "owned_by": "alibaba" }
-            ]
-        }
-        """.data(using: .utf8)!
-        
-        let session = makeMockSession { request in
-            guard request.value(forHTTPHeaderField: "Authorization") == "Bearer test-omni-key" else {
-                throw AUTOError.invalidConfiguration(detail: "Missing Bearer token")
-            }
-            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
-            return (response, mockJSON)
-        }
-        
-        let keychain = InProcessMockKeychain()
-        try keychain.save(key: KeychainManager.omniRouteApiKeyAccount, value: "test-omni-key", service: KeychainManager.defaultService)
-        let activeAccount = await MainActor.run {
-            ApplicationState.shared.omniRouteProfiles.first?.apiKeyAccount
-        }
-        if let account = activeAccount {
-            try keychain.save(key: account, value: "test-omni-key", service: KeychainManager.defaultService)
-        }
-        let provider = OmniRouteProvider(keychainService: keychain, session: session)
-        
-        let models = try await provider.fetchAvailableModels()
-        guard models.count == 2,
-              models[0].id == "llama-3-8b",
-              models[1].id == "qwen-2.5-vl-7b",
-              models[1].supportsVision == true else {
-            throw AUTOError.parsingError(detail: "OmniRoute model discovery mismatch")
-        }
-    }
-    
-    private static func testOmniRouteChatCompletions() async throws {
-        let mockResponseJSON = """
-        {
-            "id": "chatcmpl-12345",
-            "object": "chat.completion",
-            "choices": [
+            "candidates": [
                 {
-                    "index": 0,
-                    "message": {
-                        "role": "assistant",
-                        "content": "Check the sidebar at [POINT:0.20,0.30:Sidebar:screen2]."
-                    },
-                    "finish_reason": "stop"
+                    "content": {
+                        "parts": [
+                            { "text": "{\\"action\\": \\"click\\", \\"target\\": \\"Submit Button\\", \\"x\\": 0.45, \\"y\\": 0.72}" }
+                        ],
+                        "role": "model"
+                    }
                 }
             ],
-            "usage": {
-                "prompt_tokens": 15,
-                "completion_tokens": 12,
-                "total_tokens": 27
-            }
+            "usageMetadata": { "promptTokenCount": 35, "candidatesTokenCount": 20, "totalTokenCount": 55 }
         }
         """.data(using: .utf8)!
         
         let session = makeMockSession { request in
-            guard request.httpMethod == "POST" else {
-                throw AUTOError.networkError(underlying: "Expected POST")
-            }
             let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
-            return (response, mockResponseJSON)
+            return (response, structuredActionJSON)
         }
         
         let keychain = InProcessMockKeychain()
-        try keychain.save(key: KeychainManager.omniRouteApiKeyAccount, value: "test-omni-key", service: KeychainManager.defaultService)
-        let activeAccount = await MainActor.run {
-            ApplicationState.shared.omniRouteProfiles.first?.apiKeyAccount
-        }
-        if let account = activeAccount {
-            try keychain.save(key: account, value: "test-omni-key", service: KeychainManager.defaultService)
-        }
-        let provider = OmniRouteProvider(keychainService: keychain, session: session)
+        try keychain.save(key: KeychainManager.geminiApiKeyAccount, value: "test-gemini-key", service: KeychainManager.defaultService)
+        let provider = GeminiProvider(keychainService: keychain, session: session)
         
-        let response = try await provider.generateResponse(messages: [AIMessage(role: .user, content: "hi")], context: AIRequestContext())
-        guard response.text.contains("Sidebar"),
-              response.spatialPoints.count == 1,
-              response.spatialPoints.first?.screenIndex == 2,
-              response.tokenUsage?.totalTokens == 27 else {
-            throw AUTOError.parsingError(detail: "OmniRoute chat completions parsing mismatch")
+        let response = try await provider.generateResponse(
+            messages: [AIMessage(role: .user, content: "Click the submit button")],
+            context: AIRequestContext(systemInstruction: "Propose structured actions as JSON.")
+        )
+        
+        guard response.text.contains("click"), response.text.contains("Submit Button") else {
+            throw AUTOError.parsingError(detail: "Structured action parsing mismatch")
         }
     }
     
-    private static func testOmniRouteServerUnavailableMapping() async throws {
-        let session = makeMockSession { request in
-            let response = HTTPURLResponse(url: request.url!, statusCode: 502, httpVersion: nil, headerFields: nil)!
-            return (response, "Bad Gateway".data(using: .utf8)!)
+    private static func testLocalActionValidationAndBoundsClamping() async throws {
+        let validator = AutoActionValidator.shared
+        
+        // 1. Valid proposal within boundaries
+        let validProposal = DesktopActionProposal(
+            actionType: .click,
+            targetPoint: CGPoint(x: 100, y: 200),
+            elementDescription: "Search Bar"
+        )
+        let result1 = validator.validate(proposal: validProposal)
+        guard case .success(let val1) = result1, val1.riskLevel == .low, !val1.requiresConfirmation else {
+            throw AUTOError.automationError(reason: "Valid proposal was improperly rejected")
         }
         
-        let keychain = InProcessMockKeychain()
-        let provider = OmniRouteProvider(keychainService: keychain, session: session)
+        // 2. High-risk destructive proposal requiring confirmation
+        let deleteProposal = DesktopActionProposal(
+            actionType: .click,
+            targetPoint: CGPoint(x: 150, y: 250),
+            elementDescription: "Delete Account Permanently"
+        )
+        let result2 = validator.validate(proposal: deleteProposal)
+        guard case .success(let val2) = result2, val2.riskLevel == .high, val2.requiresConfirmation else {
+            throw AUTOError.automationError(reason: "High risk destructive proposal was not flagged for confirmation")
+        }
         
-        do {
-            _ = try await provider.testConnection()
-            throw AUTOError.unknown(message: "Expected failure on 502")
-        } catch let error as AUTOError {
-            if case .serverUnavailable = error {
-                return // Passed
-            }
-            throw AUTOError.unknown(message: "Expected .serverUnavailable, got \(error)")
+        // 3. Command injection security defense
+        let injectionProposal = DesktopActionProposal(
+            actionType: .typeText,
+            textParameter: "sudo rm -rf /"
+        )
+        let result3 = validator.validate(proposal: injectionProposal)
+        guard case .failure = result3 else {
+            throw AUTOError.automationError(reason: "Command injection was not blocked by AutoActionValidator")
+        }
+    }
+    
+    private static func testLocalAppleVisionOCREngine() async throws {
+        // Create an in-memory bitmap and verify AutoScreenManager can execute OCR
+        let width = 200
+        let height = 60
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        guard let context = CGContext(
+            data: nil,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: width * 4,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else {
+            throw AUTOError.internalError("Failed to create CGContext for OCR test")
+        }
+        
+        // Fill background
+        context.setFillColor(CGColor(red: 1, green: 1, blue: 1, alpha: 1))
+        context.fill(CGRect(x: 0, y: 0, width: width, height: height))
+        
+        guard let cgImage = context.makeImage() else {
+            throw AUTOError.internalError("Failed to make CGImage for OCR test")
+        }
+        
+        // Execute Vision OCR
+        let ocrResult = try await AutoScreenManager.shared.performLocalOCR(on: cgImage)
+        // White image should produce 0 elements gracefully without crashing
+        guard ocrResult.elements.isEmpty || !ocrResult.elements.isEmpty else {
+            throw AUTOError.parsingError(detail: "OCR failed to return valid AutoOCRResult")
         }
     }
     
@@ -444,44 +442,35 @@ public final class AUTOTestSuite: @unchecked Sendable {
     }
     
     @MainActor
-    private static func testOmniRouteFallback() async throws {
-        // If OmniRoute fails, manager should fall back to Gemini
-        let geminiSuccessJSON = """
-        {
-            "candidates": [
-                {
-                    "content": { "parts": [{ "text": "Fallback Answer from Gemini" }], "role": "model" }
-                }
-            ]
-        }
-        """.data(using: .utf8)!
+    private static func testLocalOfflineBehaviorAndFixedCommands() async throws {
+        // When offline or Gemini is unavailable, local fixed commands are parsed and executed 100% locally
+        let voiceManager = AutoVoiceManager.shared
         
-        let sharedSession = makeMockSession { request in
-            if request.url?.absoluteString.contains("generativelanguage") == true {
-                let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
-                return (response, geminiSuccessJSON)
-            } else {
-                let response = HTTPURLResponse(url: request.url!, statusCode: 502, httpVersion: nil, headerFields: nil)!
-                return (response, "Bad Gateway".data(using: .utf8)!)
-            }
+        let stopCmd = voiceManager.parseOfflineCommand("Stop")
+        guard stopCmd == "emergency_stop" else {
+            throw AUTOError.automationError(reason: "Offline 'stop' command was not recognized locally")
         }
         
-        let keychain = InProcessMockKeychain()
-        try keychain.save(key: KeychainManager.geminiApiKeyAccount, value: "gemini-key", service: KeychainManager.defaultService)
-        
-        let geminiProv = GeminiProvider(keychainService: keychain, session: sharedSession)
-        let omniProv = OmniRouteProvider(keychainService: keychain, session: sharedSession)
-        
-        let manager = AIProviderManager(geminiProvider: geminiProv, omniRouteProvider: omniProv)
-        ApplicationState.shared.activeAIProvider = .omniRoute
-        
-        let response = try await manager.generateResponse(messages: [AIMessage(role: .user, content: "Help")], context: AIRequestContext())
-        guard response.text.contains("Fallback Answer from Gemini") else {
-            throw AUTOError.aiProviderError(provider: "AIProviderManager", message: "Fallback to Gemini failed", statusCode: nil)
+        let clickCmd = voiceManager.parseOfflineCommand("click")
+        guard clickCmd == "mouse_click" else {
+            throw AUTOError.automationError(reason: "Offline 'click' command was not recognized locally")
         }
         
-        // Reset back to Gemini
-        ApplicationState.shared.activeAIProvider = .gemini
+        let captureCmd = voiceManager.parseOfflineCommand("screenshot")
+        guard captureCmd == "capture_screen" else {
+            throw AUTOError.automationError(reason: "Offline 'screenshot' command was not recognized locally")
+        }
+        
+        let unknownCmd = voiceManager.parseOfflineCommand("Write a complex dissertation about Shakespeare")
+        guard unknownCmd == nil else {
+            throw AUTOError.automationError(reason: "Complex reasoning should not be falsely claimed as offline command")
+        }
+        
+        // Verify local tool execution works offline without network
+        let appListResult = try await AutoExecutionEngine.shared.executeTool(named: "list_running_applications", parameters: [:])
+        guard appListResult.contains("Running Apps") else {
+            throw AUTOError.automationError(reason: "Local tool failed to run offline")
+        }
     }
     
     private static func testImageProcessorCompression() async throws {

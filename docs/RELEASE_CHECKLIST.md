@@ -24,7 +24,7 @@ Use this checklist before publishing any official release of AUTO.
 
 ## 3. Subsystem Integration Verification
 - [ ] **AI Engine**: Gemini API streaming, model discovery, and 403/429 error mapping tested.
-- [ ] **OmniRoute**: Local and remote profile fallback verified.
+- [ ] **Hybrid Engine**: 13 local engine services and Zero-Screenshot privacy gating verified.
 - [ ] **Voice**: Hold-Control push-to-talk triggers audio capture and waveform animation; speech interruption immediately silences TTS.
 - [ ] **Screen Intelligence**: ScreenCaptureKit captures display/window buffers; ephemeral RAM-only guarantee verified.
 - [ ] **Automation**: Accessibility element discovery matches targets; three-tier safety gating displays confirmation modal for high-risk actions.

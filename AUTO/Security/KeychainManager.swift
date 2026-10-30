@@ -2,7 +2,7 @@
 //  KeychainManager.swift
 //  AUTO
 //
-//  Secure abstraction for storing sensitive credentials (such as Gemini and OmniRoute
+//  Secure abstraction for storing sensitive credentials (such as Google Gemini
 //  API keys) in the macOS Keychain. Ensures credentials are never persisted in
 //  UserDefaults, plain-text configuration files, logs, or source code.
 //
@@ -23,7 +23,6 @@ public final class KeychainManager: KeychainService, @unchecked Sendable {
     
     public static let defaultService = "com.auto.desktop.companion"
     public static let geminiApiKeyAccount = "gemini_api_key"
-    public static let omniRouteApiKeyAccount = "omniroute_api_key"
     
     private let lock = NSLock()
     

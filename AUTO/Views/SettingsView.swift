@@ -5,7 +5,7 @@
 //  Complete native macOS settings interface for AUTO:
 //  - General: Appearance, Launch at Login, Visibility
 //  - Gemini: Primary AI configuration, Keychain key storage, model selection, live test
-//  - OmniRoute: Optional gateway, Local & Remote profiles, dynamic discovery, test
+//  - Hybrid Engine: Google Gemini (Cloud Reasoning) + AUTO Native Engine (100% Local Execution)
 //  - AI Routing & Models: Task-based routing rules, dynamic model browser
 //  - Conversation: Context limits, memory retention, session reset
 //  - Voice: Audio input/output preferences, speech rate, auto-speak
@@ -19,7 +19,7 @@ import ServiceManagement
 public enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "General"
     case gemini = "Gemini"
-    case omniRoute = "OmniRoute"
+    case hybrid = "Hybrid Engine"
     case routing = "AI Routing"
     case conversation = "Conversation"
     case voice = "Voice"
@@ -36,7 +36,7 @@ public enum SettingsTab: String, CaseIterable, Identifiable {
         switch self {
         case .general: return "gearshape.fill"
         case .gemini: return "sparkles"
-        case .omniRoute: return "network"
+        case .hybrid: return "cpu.fill"
         case .routing: return "arrow.triangle.branch"
         case .conversation: return "bubble.left.and.bubble.right.fill"
         case .voice: return "waveform"
@@ -61,19 +61,7 @@ public struct SettingsView: View {
     @State private var geminiTestResult: (success: Bool, message: String)?
     @State private var discoveredGeminiModels: [AIModelInfo] = []
     
-    // OmniRoute state
-    @State private var omniRouteApiKeyInput: String = ""
-    @State private var isOmniRouteKeySaved: Bool = false
-    @State private var isTestingOmniRoute: Bool = false
-    @State private var omniRouteTestResult: (success: Bool, message: String)?
-    @State private var discoveredOmniRouteModels: [AIModelInfo] = []
-    @State private var showAddProfileSheet: Bool = false
-    @State private var newProfileName: String = ""
-    @State private var newProfileBaseURL: String = "http://localhost:20128/v1"
-    @State private var newProfileType: OmniRouteProfile.ConnectionType = .local
-    
     // Dynamic Model Browser
-    @State private var modelBrowserProvider: AIProviderType = .gemini
     @State private var isRefreshingModels: Bool = false
     
     // Privacy state
@@ -107,8 +95,8 @@ public struct SettingsView: View {
                         generalSection
                     case .gemini:
                         geminiSection
-                    case .omniRoute:
-                        omniRouteSection
+                    case .hybrid:
+                        hybridEngineSection
                     case .routing:
                         routingAndModelsSection
                     case .conversation:
@@ -384,229 +372,115 @@ public struct SettingsView: View {
         }
     }
     
-    // MARK: - OmniRoute Section
-    private var omniRouteSection: some View {
+    // MARK: - Hybrid Engine Section
+    private var hybridEngineSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                settingGroupHeader("OmniRoute API Gateway (Optional)")
-                Spacer()
-                Toggle("Enabled", isOn: $appState.omniRouteConfig.isEnabled)
-                    .labelsHidden()
-            }
+            settingGroupHeader("Hybrid AI Architecture")
             
-            Text("OmniRoute routes requests to alternative local or remote OpenAI-compatible models.")
+            Text("Google Gemini handles high-level language understanding and reasoning. The AUTO Native Engine executes all screen capture, OCR, memory, and desktop control locally on your Mac.")
                 .font(.system(size: 11))
                 .foregroundColor(.gray)
             
-            // Profile Selector & Management
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("Connection Profiles")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.white)
-                    Spacer()
-                    Button("+ Add Profile") {
-                        showAddProfileSheet.toggle()
+            // Architecture Split Card
+            VStack(spacing: 8) {
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Image(systemName: "sparkles")
+                                .foregroundColor(BrandTheme.Colors.cyan)
+                            Text("Google Gemini (Cloud AI)")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                        Text("• Natural language understanding & intent\n• Complex task decomposition & planning\n• Structured action proposals & reasoning\n• Conversational dialogue")
+                            .font(.system(size: 10))
+                            .foregroundColor(.gray.opacity(0.9))
                     }
-                    .buttonStyle(.plain)
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(.cyan)
-                }
-                
-                ForEach(appState.omniRouteProfiles) { profile in
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            HStack(spacing: 6) {
-                                Text(profile.name)
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .foregroundColor(.white)
-                                
-                                Text(profile.connectionType.rawValue)
-                                    .font(.system(size: 9, weight: .bold))
-                                    .foregroundColor(.cyan)
-                                    .padding(.horizontal, 5)
-                                    .padding(.vertical, 1)
-                                    .background(Color.cyan.opacity(0.15), in: Capsule())
-                                
-                                if appState.activeOmniRouteProfileId == profile.id {
-                                    Text("ACTIVE")
-                                        .font(.system(size: 9, weight: .bold))
-                                        .foregroundColor(.green)
-                                        .padding(.horizontal, 5)
-                                        .padding(.vertical, 1)
-                                        .background(Color.green.opacity(0.15), in: Capsule())
-                                }
-                            }
-                            Text(profile.baseURL)
-                                .font(.system(size: 10))
-                                .foregroundColor(.gray)
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 8))
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Image(systemName: "cpu.fill")
+                                .foregroundColor(BrandTheme.Colors.purple)
+                            Text("AUTO Native Engine (Local)")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(.white)
                         }
-                        
-                        Spacer()
-                        
-                        if appState.activeOmniRouteProfileId != profile.id {
-                            Button("Select") {
-                                appState.activeOmniRouteProfileId = profile.id
-                            }
-                            .buttonStyle(.plain)
-                            .font(.system(size: 11))
-                            .foregroundColor(.cyan)
-                        }
-                        
-                        if appState.omniRouteProfiles.count > 1 {
-                            Button(action: { deleteProfile(profile) }) {
-                                Image(systemName: "trash")
-                                    .font(.system(size: 11))
-                                    .foregroundColor(.red.opacity(0.7))
-                            }
-                            .buttonStyle(.plain)
-                        }
+                        Text("• ScreenCaptureKit & Apple Vision OCR\n• Mouse, cursor & keyboard automation\n• Local persistent SQLite memory\n• 3-Tier safety gating & Emergency Stop")
+                            .font(.system(size: 10))
+                            .foregroundColor(.gray.opacity(0.9))
                     }
-                    .padding(8)
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 8))
                 }
             }
             
-            // Active Profile Details
-            if let activeId = appState.activeOmniRouteProfileId,
-               let activeIndex = appState.omniRouteProfiles.firstIndex(where: { $0.id == activeId }) {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Active Profile Settings: \(appState.omniRouteProfiles[activeIndex].name)")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.cyan)
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Base URL")
-                            .font(.system(size: 11))
-                            .foregroundColor(.gray)
-                        TextField("http://localhost:20128/v1", text: $appState.omniRouteProfiles[activeIndex].baseURL)
-                            .textFieldStyle(.plain)
-                            .font(.system(size: 12))
-                            .padding(8)
-                            .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 8))
-                            .foregroundColor(.white)
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Default Model ID")
-                            .font(.system(size: 11))
-                            .foregroundColor(.gray)
-                        TextField("default", text: $appState.omniRouteProfiles[activeIndex].defaultModel)
-                            .textFieldStyle(.plain)
-                            .font(.system(size: 12))
-                            .padding(8)
-                            .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 8))
-                            .foregroundColor(.white)
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("API Key (Optional for local servers; Keychain stored)")
-                            .font(.system(size: 11))
-                            .foregroundColor(.gray)
-                        HStack {
-                            SecureField(isOmniRouteKeySaved ? "••••••••••••••••" : "Optional Bearer Token", text: $omniRouteApiKeyInput)
-                                .textFieldStyle(.plain)
-                                .font(.system(size: 12))
-                                .padding(8)
-                                .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 8))
-                                .foregroundColor(.white)
-                            
-                            Button("Save Key") {
-                                saveOmniRouteKey(for: appState.omniRouteProfiles[activeIndex].apiKeyAccount)
-                            }
-                            .buttonStyle(.plain)
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 7)
-                            .background(Color.cyan, in: RoundedRectangle(cornerRadius: 8))
-                        }
-                    }
-                }
-            }
+            Divider().background(Color.white.opacity(0.1))
             
-            // Test Connection
-            HStack(spacing: 12) {
-                Button(action: { testOmniRouteConnection() }) {
-                    HStack(spacing: 6) {
-                        if isTestingOmniRoute {
-                            ProgressView().scaleEffect(0.7).frame(width: 14, height: 14)
-                        } else {
-                            Image(systemName: "bolt.horizontal.fill")
-                        }
-                        Text("Test OmniRoute Connection")
-                            .font(.system(size: 12, weight: .semibold))
-                    }
+            // Screen Transmission Privacy Control
+            settingGroupHeader("Visual Privacy & Transmission Gate")
+            VStack(alignment: .leading, spacing: 6) {
+                Toggle("Allow Screenshot Transmission for Visual Queries", isOn: $appState.allowScreenshotTransmission)
                     .foregroundColor(.white)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                    .background(Color.purple.opacity(0.3), in: RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.purple.opacity(0.6), lineWidth: 1))
-                }
-                .buttonStyle(.plain)
-                .disabled(isTestingOmniRoute)
+                    .font(.system(size: 12, weight: .medium))
                 
-                if let result = omniRouteTestResult {
-                    HStack(spacing: 6) {
-                        Image(systemName: result.success ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                            .foregroundColor(result.success ? .green : .orange)
-                        Text(result.message)
-                            .font(.system(size: 11))
-                            .foregroundColor(result.success ? .green : .orange)
-                    }
-                }
+                Text("When disabled (default), AUTO extracts text locally using Apple Vision OCR and Accessibility APIs, sending only text to Gemini without transmitting screenshot image bytes.")
+                    .font(.system(size: 10))
+                    .foregroundColor(.gray)
+                    .padding(.leading, 20)
             }
+            .padding(10)
+            .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 8))
             
-            // Add Profile Popover / Sheet
-            if showAddProfileSheet {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Add New OmniRoute Profile")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(.white)
-                    
-                    TextField("Profile Name", text: $newProfileName)
-                        .textFieldStyle(.plain)
-                        .padding(6)
-                        .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 6))
-                        .foregroundColor(.white)
-                    
-                    TextField("Base URL (e.g. http://localhost:20128/v1)", text: $newProfileBaseURL)
-                        .textFieldStyle(.plain)
-                        .padding(6)
-                        .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 6))
-                        .foregroundColor(.white)
-                    
-                    Picker("Type", selection: $newProfileType) {
-                        Text("Local").tag(OmniRouteProfile.ConnectionType.local)
-                        Text("Remote").tag(OmniRouteProfile.ConnectionType.remote)
-                    }
-                    .pickerStyle(.segmented)
-                    
+            // Local Engine Services Catalog
+            settingGroupHeader("13 Native Swift Execution Services")
+            VStack(spacing: 4) {
+                let services = [
+                    ("AutoExecutionEngine", "Local action pipeline execution"),
+                    ("AutoToolRegistry", "16+ built-in modular tools catalog"),
+                    ("AutoActionValidator", "Safety bounds & risk tier validation"),
+                    ("AutoTaskManager", "Step planning & workflow lifecycle"),
+                    ("AutoMemoryManager", "Local SQLite memory & credential firewall"),
+                    ("AutoConversationManager", "Local multi-turn context compaction"),
+                    ("AutoScreenManager", "ScreenCaptureKit + Apple Vision OCR"),
+                    ("AutoCursorManager", "Bezier mouse trajectory & smoothing"),
+                    ("AutoKeyboardManager", "CGEvent typing & shortcut interception"),
+                    ("AutoVoiceManager", "AVAudioEngine capture & Apple Speech"),
+                    ("AutoFileManager", "Sandboxed file operations (Desktop, Downloads, Docs)"),
+                    ("AutoSafetyManager", "3-tier confirmation & 10ms Emergency Stop"),
+                    ("AutoResultVerifier", "Outcome evaluation & UI state verification")
+                ]
+                
+                ForEach(services, id: \.0) { s in
                     HStack {
-                        Button("Cancel") { showAddProfileSheet = false }
-                            .buttonStyle(.plain)
-                            .foregroundColor(.gray)
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                            .font(.system(size: 10))
+                        Text(s.0)
+                            .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                            .foregroundColor(.white)
                         Spacer()
-                        Button("Create Profile") { createNewProfile() }
-                            .buttonStyle(.plain)
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .background(Color.cyan, in: RoundedRectangle(cornerRadius: 6))
-                            .disabled(newProfileName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        Text(s.1)
+                            .font(.system(size: 10))
+                            .foregroundColor(.gray)
                     }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
                 }
-                .padding(10)
-                .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 8))
             }
+            .padding(8)
+            .background(Color.black.opacity(0.2), in: RoundedRectangle(cornerRadius: 8))
         }
     }
     
     // MARK: - Routing & Models Section
     private var routingAndModelsSection: some View {
         VStack(alignment: .leading, spacing: 18) {
-            settingGroupHeader("Task-Based AI Routing")
-            Text("Configure which AI provider handles specific computational tasks.")
+            settingGroupHeader("Language & Reasoning Engine")
+            Text("Google Gemini serves as the primary reasoning engine for natural language understanding and task planning.")
                 .font(.system(size: 11))
                 .foregroundColor(.gray)
             
@@ -617,13 +491,9 @@ public struct SettingsView: View {
                             .font(.system(size: 12))
                             .foregroundColor(.white)
                         Spacer()
-                        Picker("", selection: $appState.aiRoutingRules[index].provider) {
-                            ForEach(AIProviderType.allCases) { provider in
-                                Text(provider.rawValue).tag(provider)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        .frame(width: 180)
+                        Text("Google Gemini")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(BrandTheme.Colors.cyan)
                     }
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
@@ -631,25 +501,14 @@ public struct SettingsView: View {
                 }
             }
             
-            Button("Reset to Recommended Defaults") {
-                appState.aiRoutingRules = AIRoutingRule.defaultRules()
-            }
-            .buttonStyle(.plain)
-            .font(.system(size: 11))
-            .foregroundColor(.cyan)
-            
             Divider().background(Color.white.opacity(0.1))
             
-            settingGroupHeader("Dynamic Model Browser")
+            settingGroupHeader("Gemini Model Discovery")
             
             HStack {
-                Picker("Provider", selection: $modelBrowserProvider) {
-                    ForEach(AIProviderType.allCases) { provider in
-                        Text(provider.rawValue).tag(provider)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .frame(width: 260)
+                Text("Select active model for reasoning and task planning:")
+                    .font(.system(size: 11))
+                    .foregroundColor(.gray)
                 
                 Spacer()
                 
@@ -664,58 +523,48 @@ public struct SettingsView: View {
                 .buttonStyle(.plain)
             }
             
-            let models = (modelBrowserProvider == .gemini) ? discoveredGeminiModels : discoveredOmniRouteModels
-            if models.isEmpty {
-                Text("No cached models. Click 'Refresh' or run a connection test to discover available models.")
-                    .font(.system(size: 11))
-                    .foregroundColor(.gray)
-                    .padding(.vertical, 8)
-            } else {
-                VStack(spacing: 6) {
-                    ForEach(models) { model in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                HStack(spacing: 6) {
-                                    Text(model.displayName)
-                                        .font(.system(size: 12, weight: .semibold))
-                                        .foregroundColor(.white)
-                                    
-                                    if model.supportsVision {
-                                        Text("Vision")
-                                            .font(.system(size: 9, weight: .bold))
-                                            .foregroundColor(.yellow)
-                                            .padding(.horizontal, 4)
-                                            .padding(.vertical, 1)
-                                            .background(Color.yellow.opacity(0.15), in: Capsule())
-                                    }
-                                    if model.isLocal {
-                                        Text("Local")
-                                            .font(.system(size: 9, weight: .bold))
-                                            .foregroundColor(.green)
-                                            .padding(.horizontal, 4)
-                                            .padding(.vertical, 1)
-                                            .background(Color.green.opacity(0.15), in: Capsule())
-                                    }
+            let models = discoveredGeminiModels.isEmpty ? GeminiProvider.fallbackModels : discoveredGeminiModels
+            VStack(spacing: 6) {
+                ForEach(models) { model in
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 6) {
+                                Text(model.displayName)
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundColor(.white)
+                                
+                                if model.supportsVision {
+                                    Text("Vision")
+                                        .font(.system(size: 9, weight: .bold))
+                                        .foregroundColor(.yellow)
+                                        .padding(.horizontal, 4)
+                                        .padding(.vertical, 1)
+                                        .background(Color.yellow.opacity(0.15), in: Capsule())
                                 }
-                                Text("ID: \(model.id)")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(.gray)
-                            }
-                            Spacer()
-                            Button("Select") {
-                                if modelBrowserProvider == .gemini {
-                                    appState.geminiConfig.selectedModelId = model.id
-                                } else {
-                                    appState.omniRouteConfig.selectedModelId = model.id
+                                
+                                if appState.geminiConfig.selectedModelId == model.id {
+                                    Text("Active")
+                                        .font(.system(size: 9, weight: .bold))
+                                        .foregroundColor(.green)
+                                        .padding(.horizontal, 4)
+                                        .padding(.vertical, 1)
+                                        .background(Color.green.opacity(0.15), in: Capsule())
                                 }
                             }
-                            .buttonStyle(.plain)
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.cyan)
+                            Text("ID: \(model.id)")
+                                .font(.system(size: 10))
+                                .foregroundColor(.gray)
                         }
-                        .padding(8)
-                        .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 6))
+                        Spacer()
+                        Button(appState.geminiConfig.selectedModelId == model.id ? "Selected" : "Select") {
+                            appState.geminiConfig.selectedModelId = model.id
+                        }
+                        .buttonStyle(.plain)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(appState.geminiConfig.selectedModelId == model.id ? .green : .cyan)
                     }
+                    .padding(8)
+                    .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 6))
                 }
             }
         }
@@ -1212,7 +1061,7 @@ public struct SettingsView: View {
                 privacyFactRow(
                     icon: "shield.lefthalf.filled",
                     title: "Local vs. Cloud AI Disclosure",
-                    description: "Desktop automation, coordinate mapping, audio metering, local memory, and emergency stop run 100% locally. Voice text and screenshots are sent via HTTPS strictly to your configured provider (Google Gemini or OmniRoute)."
+                    description: "Desktop automation, Apple Vision OCR, coordinate mapping, audio metering, local SQLite memory, and emergency stop run 100% locally on your Mac. Google Gemini is used solely for natural language reasoning and task planning via HTTPS."
                 )
                 privacyFactRow(
                     icon: "lock.shield.fill",
@@ -1504,10 +1353,6 @@ public struct SettingsView: View {
             key: KeychainManager.geminiApiKeyAccount,
             service: KeychainManager.defaultService
         )
-        isOmniRouteKeySaved = KeychainManager.shared.hasKey(
-            key: KeychainManager.omniRouteApiKeyAccount,
-            service: KeychainManager.defaultService
-        )
     }
     
     private func saveGeminiKey() {
@@ -1537,19 +1382,6 @@ public struct SettingsView: View {
         geminiTestResult = nil
     }
     
-    private func saveOmniRouteKey(for account: String) {
-        let trimmed = omniRouteApiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        try? KeychainManager.shared.save(
-            key: account,
-            value: trimmed,
-            service: KeychainManager.defaultService
-        )
-        isOmniRouteKeySaved = true
-        appState.hasOmniRouteKey = true
-        omniRouteApiKeyInput = ""
-    }
-    
     private func testGeminiConnection() {
         isTestingGemini = true
         geminiTestResult = nil
@@ -1566,22 +1398,6 @@ public struct SettingsView: View {
         }
     }
     
-    private func testOmniRouteConnection() {
-        isTestingOmniRoute = true
-        omniRouteTestResult = nil
-        Task {
-            let start = Date()
-            do {
-                let success = try await AIProviderManager.shared.testConnection(for: .omniRoute)
-                let elapsed = Int(Date().timeIntervalSince(start) * 1000)
-                omniRouteTestResult = (success, "Connected (\(elapsed)ms)")
-            } catch {
-                omniRouteTestResult = (false, error.localizedDescription)
-            }
-            isTestingOmniRoute = false
-        }
-    }
-    
     private func fetchGeminiModels() {
         isRefreshingModels = true
         Task {
@@ -1594,14 +1410,8 @@ public struct SettingsView: View {
     
     private func refreshDiscoveredModels() {
         Task {
-            if modelBrowserProvider == .gemini {
-                if let models = try? await AIProviderManager.shared.discoverModels(for: .gemini) {
-                    discoveredGeminiModels = models
-                }
-            } else {
-                if let models = try? await AIProviderManager.shared.discoverModels(for: .omniRoute) {
-                    discoveredOmniRouteModels = models
-                }
+            if let models = try? await AIProviderManager.shared.discoverModels(for: .gemini) {
+                discoveredGeminiModels = models
             }
         }
     }
@@ -1947,27 +1757,6 @@ public struct SettingsView: View {
             }
             .padding(12)
             .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 10))
-        }
-    }
-    
-    private func createNewProfile() {
-        let profile = OmniRouteProfile(
-            name: newProfileName,
-            baseURL: newProfileBaseURL,
-            apiKeyAccount: "omniroute_\(UUID().uuidString.prefix(8))",
-            connectionType: newProfileType
-        )
-        appState.omniRouteProfiles.append(profile)
-        appState.activeOmniRouteProfileId = profile.id
-        showAddProfileSheet = false
-        newProfileName = ""
-        newProfileBaseURL = "http://localhost:20128/v1"
-    }
-    
-    private func deleteProfile(_ profile: OmniRouteProfile) {
-        appState.omniRouteProfiles.removeAll(where: { $0.id == profile.id })
-        if appState.activeOmniRouteProfileId == profile.id {
-            appState.activeOmniRouteProfileId = appState.omniRouteProfiles.first?.id
         }
     }
     

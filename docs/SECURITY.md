@@ -21,10 +21,10 @@ AUTO operates as an autonomous desktop companion with mouse, keyboard, and scree
 
 ## 2. API Key Security & macOS Keychain
 
-- **Hardware-Backed Encryption**: Provider API keys (Google Gemini, OmniRoute) are never written to plaintext files, `.env` files, or `UserDefaults`.
+- **Hardware-Backed Encryption**: Provider API keys (Google Gemini) are never written to plaintext files, `.env` files, or `UserDefaults`.
 - Keys are saved directly to the macOS Keychain using Apple's `Security.framework` (`SecItemAdd`, `SecItemUpdate`, `SecItemCopyMatching`):
   - Service: `com.auto.desktop.companion`
-  - Accounts: `gemini_api_key`, `omniroute_api_key_<profileId>`
+  - Accounts: `gemini_api_key`
 - **No Log Leaks**: The logging subsystem (`AppLogger`) actively filters out API keys and token strings to prevent accidental leakage into system logs (`os.log`).
 
 ---

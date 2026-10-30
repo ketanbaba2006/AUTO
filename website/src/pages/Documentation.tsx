@@ -11,7 +11,9 @@ export const DocumentationPage: React.FC = () => {
         { name: 'Installation Guide', path: 'docs/INSTALLATION.md', desc: 'System requirements, DMG mounting, Gatekeeper ad-hoc opening, and building from source.' },
         { name: 'Voice & Push-to-Talk Setup', path: 'docs/VOICE_SETUP.md', desc: 'Global Hold-Control shortcut, microphone device selection, and instant speech interruption.' },
         { name: 'Gemini Configuration', path: 'docs/GEMINI_SETUP.md', desc: 'Google AI Studio API key setup, Keychain storage, and dynamic model discovery.' },
-        { name: 'OmniRoute Gateway Setup', path: 'docs/OMNIROUTE_SETUP.md', desc: 'Optional local model connection (Ollama, LM Studio) and OpenAI-compatible endpoints.' }
+        { name: 'Hybrid AI Architecture', path: 'docs/HYBRID_AI_ARCHITECTURE.md', desc: 'Cloud reasoning via Gemini and 100% local execution via 13 native Swift services.' },
+        { name: 'Local Execution Engine', path: 'docs/LOCAL_EXECUTION_ENGINE.md', desc: '13 native Swift local services, 16+ built-in modular tools, and sandboxed execution.' },
+        { name: 'Offline Capabilities', path: 'docs/OFFLINE_CAPABILITIES.md', desc: 'On-device Apple Vision OCR, fixed voice commands, and SQLite memory when offline.' }
       ]
     },
     {

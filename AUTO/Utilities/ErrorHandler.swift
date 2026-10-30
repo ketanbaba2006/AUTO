@@ -30,6 +30,8 @@ public enum AUTOError: LocalizedError, CustomStringConvertible, Sendable, Equata
     case invalidOperation(String)
     case internalError(String)
     case automationError(reason: String)
+    case fileAccessDenied(path: String, reason: String)
+    case screenCaptureFailed(reason: String)
     case unknown(message: String)
     
     public var errorDescription: String? {
@@ -84,6 +86,10 @@ public enum AUTOError: LocalizedError, CustomStringConvertible, Sendable, Equata
             return "Internal error: \(reason)"
         case .automationError(let reason):
             return "Automation error: \(reason)"
+        case .fileAccessDenied(let path, let reason):
+            return "File access denied at '\(path)': \(reason)"
+        case .screenCaptureFailed(let reason):
+            return "Screen capture failed: \(reason)"
         case .unknown(let message):
             return "An unexpected error occurred: \(message)"
         }
@@ -96,10 +102,7 @@ public enum AUTOError: LocalizedError, CustomStringConvertible, Sendable, Equata
         case .rateLimitExceeded:
             return "Wait a few seconds or check your provider API quota."
         case .serverUnavailable(let provider, _):
-            if provider == "OmniRoute" {
-                return "Ensure your local or remote OmniRoute server is running."
-            }
-            return "Check the provider's status page or try again in a few minutes."
+            return "Check \(provider) status or try again in a few minutes. Local tools remain functional."
         case .requestTimeout:
             return "Check your network connection and verify provider server responsiveness."
         case .permissionDenied(let permission, _):

@@ -53,40 +53,14 @@ public final class ApplicationState: ObservableObject {
     }
     
     @Published public var hasGeminiKey: Bool = false
-    @Published public var hasOmniRouteKey: Bool = false
+    @Published public var isOfflineMode: Bool = false
+    @Published public var allowScreenshotTransmission: Bool = false
     @Published public var lastTokenUsage: TokenUsage?
     
     @Published public var geminiConfig: AIProviderConfiguration {
         didSet {
             if let encoded = try? JSONEncoder().encode(geminiConfig) {
                 UserDefaults.standard.set(encoded, forKey: "com.auto.geminiConfig")
-            }
-        }
-    }
-    
-    @Published public var omniRouteConfig: AIProviderConfiguration {
-        didSet {
-            if let encoded = try? JSONEncoder().encode(omniRouteConfig) {
-                UserDefaults.standard.set(encoded, forKey: "com.auto.omniRouteConfig")
-            }
-        }
-    }
-    
-    // MARK: - OmniRoute Connection Profiles
-    @Published public var omniRouteProfiles: [OmniRouteProfile] {
-        didSet {
-            if let encoded = try? JSONEncoder().encode(omniRouteProfiles) {
-                UserDefaults.standard.set(encoded, forKey: "com.auto.omniRouteProfiles")
-            }
-        }
-    }
-    
-    @Published public var activeOmniRouteProfileId: UUID? {
-        didSet {
-            if let id = activeOmniRouteProfileId {
-                UserDefaults.standard.set(id.uuidString, forKey: "com.auto.activeOmniRouteProfileId")
-            } else {
-                UserDefaults.standard.removeObject(forKey: "com.auto.activeOmniRouteProfileId")
             }
         }
     }
@@ -181,32 +155,6 @@ public final class ApplicationState: ObservableObject {
             self.geminiConfig = decoded
         } else {
             self.geminiConfig = .defaultGeminiConfig()
-        }
-        
-        // OmniRoute Config
-        if let data = UserDefaults.standard.data(forKey: "com.auto.omniRouteConfig"),
-           let decoded = try? JSONDecoder().decode(AIProviderConfiguration.self, from: data) {
-            self.omniRouteConfig = decoded
-        } else {
-            self.omniRouteConfig = .defaultOmniRouteConfig()
-        }
-        
-        // OmniRoute Profiles
-        let loadedProfiles: [OmniRouteProfile]
-        if let data = UserDefaults.standard.data(forKey: "com.auto.omniRouteProfiles"),
-           let decoded = try? JSONDecoder().decode([OmniRouteProfile].self, from: data) {
-            loadedProfiles = decoded
-        } else {
-            loadedProfiles = [OmniRouteProfile.defaultLocalProfile()]
-        }
-        self.omniRouteProfiles = loadedProfiles
-        
-        // Active Profile ID
-        if let idString = UserDefaults.standard.string(forKey: "com.auto.activeOmniRouteProfileId"),
-           let id = UUID(uuidString: idString) {
-            self.activeOmniRouteProfileId = id
-        } else {
-            self.activeOmniRouteProfileId = loadedProfiles.first?.id
         }
         
         // AI Routing Rules

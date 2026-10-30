@@ -78,7 +78,7 @@ The output artifacts will be placed in `dist/`:
 When you first open AUTO, an interactive 5-step onboarding wizard will guide you through:
 1. **Welcome**: Meet your personal companion.
 2. **Permissions**: Grant Accessibility, Microphone, Speech Recognition, and Screen Recording access.
-3. **AI Configuration**: Enter your Google Gemini API key (optional OmniRoute configuration).
+3. **AI Configuration**: Enter your Google Gemini API key.
 4. **Voice & Screen Interaction**: Learn the Hold-Control push-to-talk workflow.
 5. **Memory & Safety**: Learn about local memory storage and Emergency Stop failsafes.
 
@@ -95,5 +95,5 @@ rm -rf ~/Library/Application\ Support/AUTO
 defaults delete com.auto.desktop.companion
 ```
 4. To remove stored API keys from Keychain:
-   Open **Keychain Access.app** and delete `gemini_api_key` and `omniroute_api_key_*`.
+   Open **Keychain Access.app** and delete `gemini_api_key`.
 

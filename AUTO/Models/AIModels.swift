@@ -10,7 +10,6 @@ import Foundation
 
 public enum AIProviderType: String, Codable, CaseIterable, Identifiable, Sendable {
     case gemini = "Google Gemini"
-    case omniRoute = "OmniRoute Gateway"
     
     public var id: String { rawValue }
     
@@ -18,8 +17,6 @@ public enum AIProviderType: String, Codable, CaseIterable, Identifiable, Sendabl
         switch self {
         case .gemini:
             return "gemini-2.5-flash"
-        case .omniRoute:
-            return "default"
         }
     }
 }
@@ -112,71 +109,6 @@ public struct AIProviderConfiguration: Codable, Equatable, Sendable {
             maxRetries: 2
         )
     }
-    
-    public static func defaultOmniRouteConfig() -> AIProviderConfiguration {
-        return AIProviderConfiguration(
-            providerType: .omniRoute,
-            isEnabled: false,
-            endpointURL: "http://localhost:20128/v1",
-            selectedModelId: "default",
-            temperature: 0.7,
-            maxOutputTokens: 2048,
-            timeoutInterval: 20.0,
-            maxRetries: 1
-        )
-    }
-}
-
-public struct OmniRouteProfile: Identifiable, Codable, Equatable, Sendable {
-    public var id: UUID
-    public var name: String
-    public var baseURL: String
-    public var apiKeyAccount: String
-    public var connectionType: ConnectionType
-    public var isEnabled: Bool
-    public var defaultModel: String
-    public var lastConnectionStatus: String?
-    public var lastConnectionDate: Date?
-    
-    public enum ConnectionType: String, Codable, CaseIterable, Identifiable, Sendable {
-        case local = "Local"
-        case remote = "Remote"
-        
-        public var id: String { rawValue }
-    }
-    
-    public init(
-        id: UUID = UUID(),
-        name: String,
-        baseURL: String,
-        apiKeyAccount: String,
-        connectionType: ConnectionType = .local,
-        isEnabled: Bool = true,
-        defaultModel: String = "default",
-        lastConnectionStatus: String? = nil,
-        lastConnectionDate: Date? = nil
-    ) {
-        self.id = id
-        self.name = name
-        self.baseURL = baseURL
-        self.apiKeyAccount = apiKeyAccount
-        self.connectionType = connectionType
-        self.isEnabled = isEnabled
-        self.defaultModel = defaultModel
-        self.lastConnectionStatus = lastConnectionStatus
-        self.lastConnectionDate = lastConnectionDate
-    }
-    
-    public static func defaultLocalProfile() -> OmniRouteProfile {
-        return OmniRouteProfile(
-            name: "Local OmniRoute Gateway",
-            baseURL: "http://localhost:20128/v1",
-            apiKeyAccount: "omniroute_local_key",
-            connectionType: .local,
-            isEnabled: true,
-            defaultModel: "default"
-        )
-    }
 }
 
 public enum AITaskType: String, Codable, CaseIterable, Identifiable, Sendable {
@@ -207,8 +139,8 @@ public struct AIRoutingRule: Codable, Equatable, Sendable {
             AIRoutingRule(task: .screenUnderstanding, provider: .gemini),
             AIRoutingRule(task: .mainConversation, provider: .gemini),
             AIRoutingRule(task: .contextualReasoning, provider: .gemini),
-            AIRoutingRule(task: .alternativeModelRequest, provider: .omniRoute),
-            AIRoutingRule(task: .userSelectedModel, provider: .omniRoute)
+            AIRoutingRule(task: .alternativeModelRequest, provider: .gemini),
+            AIRoutingRule(task: .userSelectedModel, provider: .gemini)
         ]
     }
 }

@@ -12,7 +12,7 @@
   "dmgFilename": "AUTO-1.0.0.dmg",
   "downloadPath": "https://github.com/ketanbaba2006/AUTO/releases/download/v1.0.0/AUTO-1.0.0.dmg",
   "githubRepoUrl": "https://github.com/ketanbaba2006/AUTO",
-  "sha256": "9554b2b66561c73715ff8b26109cc7130d8080660f2d5fc742777f265481510a",
+  "sha256": "5f51ab14faaca3d0179111443bea34ee2a6789ea1216b7c42d1d84520659f4a9",
   "releaseStatus": "Packaged & Verified (Local Release Ready)",
   "codeSigningStatus": "Ad-Hoc Signed with Hardened Entitlements (Developer ID Pending)",
   "pricing": "100% Free Forever",
@@ -23,8 +23,8 @@
     "paywalls": false,
     "telemetry": false
   },
-  "primaryAI": "Google Gemini API (multimodal visual reasoning)",
-  "optionalAI": "OmniRoute Gateway (compatible with local Ollama / LM Studio or remote proxies)",
+  "primaryAI": "Google Gemini API (natural language reasoning & task planning)",
+  "localEngine": "13 Native Local Swift Services (100% on-device desktop execution & Vision OCR)",
   "systemPermissions": [
     "Microphone",
     "Speech Recognition",

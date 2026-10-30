@@ -4,7 +4,7 @@
 
 This document provides a comprehensive technical analysis of the reference repository **HeyClicky** (`clicky`, internally named `leanring-buddy`), authored by Farza and team. The purpose of this analysis is to evaluate its architecture, Swift implementation, interaction models, dependencies, security profile, and shortcomings in order to build an independent, native macOS desktop companion named **AUTO**.
 
-AUTO retains the interaction strengths of Clicky—specifically, menu-bar residency, floating companion panels, multi-monitor transparent overlays, global hold-to-talk shortcuts, and screen intelligence—while introducing a modular architecture, direct Google Gemini and OmniRoute model integration, local macOS Keychain credential storage, zero telemetry, and a full native settings and onboarding system.
+AUTO retains the interaction strengths of Clicky—specifically, menu-bar residency, floating companion panels, multi-monitor transparent overlays, global hold-to-talk shortcuts, and screen intelligence—while introducing a modular architecture, direct Google Gemini model integration, 13 native local execution services, local macOS Keychain credential storage, zero telemetry, and a full native settings and onboarding system.
 
 ---
 
@@ -86,9 +86,9 @@ The following patterns from Clicky are architecturally sound and will be adapted
 
 | Original Component | Problem in Clicky | AUTO Replacement |
 | :--- | :--- | :--- |
-| **Cloudflare Worker Proxy** | Hardcoded dependency requiring user deployment of Cloudflare Workers and remote secrets. | **Direct Local & Provider Clients**: Native direct clients for Google Gemini API and OmniRoute local/remote gateway. |
+| **Cloudflare Worker Proxy** | Hardcoded dependency requiring user deployment of Cloudflare Workers and remote secrets. | **Direct Local & Provider Clients**: Native direct client for Google Gemini API and 100% local native Swift execution engine. |
 | **Monolithic `CompanionManager`** | Over 1,000 lines coupling onboarding, video, audio playback, email, networking, and UI state. | **Modular Service Architecture**: Segregated managers (`CompanionManager`, `AIProviderManager`, `AudioCaptureManager`, `PermissionManager`, etc.) orchestrated via a `DependencyContainer`. |
-| **Hardcoded Models & Prompts** | Hardcoded to Claude Sonnet/Opus via Anthropic API proxy. | **Dynamic Model Discovery & Protocol**: Protocol-oriented `AIProvider` supporting Gemini (default) and OmniRoute with dynamic model discovery. |
+| **Hardcoded Models & Prompts** | Hardcoded to Claude Sonnet/Opus via Anthropic API proxy. | **Dynamic Model Discovery & Protocol**: Protocol-oriented `AIProvider` supporting Gemini with dynamic model discovery and native local tools. |
 | **Plain Text / Hardcoded Configs** | Secrets stored in worker environment or plain configuration. | **macOS Keychain Services**: Secure, encrypted storage of API keys via `KeychainManager`. |
 | **PostHog Analytics & FormSpark** | Telemetry tracking and email submission without clear opt-out. | **Completely Free & Privacy-First**: Zero analytics, zero user tracking, zero data exfiltration. |
 | **Hardcoded Assets & Video** | Bundled proprietary game audio (`ff.mp3`, `eshop.mp3`) and video. | **Native SwiftUI Vector Animations**: Clean, native vector and procedural UI components without copyright encumbrance. |

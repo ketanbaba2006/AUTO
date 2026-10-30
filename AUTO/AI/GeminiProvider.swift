@@ -116,12 +116,14 @@ public final class GeminiProvider: AIProvider, @unchecked Sendable {
         }
     }
     
+    public static let fallbackModels: [AIModelInfo] = [
+        AIModelInfo(id: "gemini-2.5-flash", displayName: "Gemini 2.5 Flash", provider: .gemini, supportsVision: true, isDefault: true),
+        AIModelInfo(id: "gemini-2.5-pro", displayName: "Gemini 2.5 Pro", provider: .gemini, supportsVision: true),
+        AIModelInfo(id: "gemini-2.0-flash", displayName: "Gemini 2.0 Flash", provider: .gemini, supportsVision: true)
+    ]
+    
     private func defaultGeminiFallbackModels() -> [AIModelInfo] {
-        return [
-            AIModelInfo(id: "gemini-2.5-flash", displayName: "Gemini 2.5 Flash", provider: .gemini, supportsVision: true, isDefault: true),
-            AIModelInfo(id: "gemini-2.5-pro", displayName: "Gemini 2.5 Pro", provider: .gemini, supportsVision: true),
-            AIModelInfo(id: "gemini-2.0-flash", displayName: "Gemini 2.0 Flash", provider: .gemini, supportsVision: true)
-        ]
+        return Self.fallbackModels
     }
     
     // MARK: - Synchronous / Standard Generate Content

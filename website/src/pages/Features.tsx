@@ -17,12 +17,12 @@ export const Features: React.FC<FeaturesProps> = ({ setActiveTab }) => {
       details: ['Dynamic model discovery', 'Streaming response chunks', 'Spatial point token extraction', 'Encrypted Keychain storage']
     },
     {
-      icon: Network,
+      icon: Cpu,
       color: 'var(--accent-purple)',
-      title: 'Optional OmniRoute Gateway',
-      category: 'UNIVERSAL GATEWAY',
-      desc: 'Connect alternative remote or local models (such as Ollama, LM Studio, or custom OpenAI-compatible proxies) without changing workflows. If OmniRoute is offline, AUTO automatically falls back to Gemini.',
-      details: ['Local model support (100% offline)', 'Custom endpoint profiles', 'Automatic fallback to Gemini', 'Zero mandatory setup']
+      title: '100% Native Local Execution Engine',
+      category: 'HYBRID ARCHITECTURE',
+      desc: 'All desktop interactions, mouse clicks, keystrokes, on-device Apple Vision OCR, sandboxed file operations, and SQLite memory run locally through 13 native Swift services. Gemini handles high-level reasoning while your computer stays in your control.',
+      details: ['Zero mandatory local LLM', 'On-device Apple Vision OCR', 'Native CoreGraphics & AXUIElement', 'Zero-screenshot privacy gate']
     },
     {
       icon: Mic,

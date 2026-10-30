@@ -26,10 +26,9 @@ The following operations execute strictly on your device and never transmit data
 When you actively ask AUTO a question or request task assistance:
 1. **Google Gemini API**:
    - Spoken or typed prompt text is transmitted to Google Gemini servers over TLS 1.3 HTTPS.
-   - When visual screen assistance is requested, a compressed, downsampled JPEG screenshot of your display or window is transmitted as a multimodal payload.
+   - Screen text extracted locally by on-device Apple Vision OCR is provided as structured context.
+   - Raw screenshot images are only transmitted if the user explicitly turns on `Allow Screenshot Transmission` in Settings.
    - Streaming responses are received over HTTPS chunks.
-2. **OmniRoute Gateway (Optional)**:
-   - When configured, AI requests are routed to your designated OmniRoute endpoint (e.g. `http://localhost:20128/v1` for local models like Ollama / LM Studio, or a custom remote proxy).
 
 ---
 

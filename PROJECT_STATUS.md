@@ -14,7 +14,7 @@ AUTO is an independent, 100% native macOS AI desktop companion inspired by the o
 
 Across all 7 development fragments:
 - **Fragment 1 (Foundation & macOS Architecture)**: Built floating companion panel, multi-monitor transparent overlays, Keychain service, permission framework, and power/lifecycle orchestration.
-- **Fragment 2 (AI Infrastructure)**: Implemented Google Gemini primary provider and OmniRoute optional gateway with dynamic model discovery, task routing, streaming, and conversation memory.
+- **Fragment 2 (AI Infrastructure & Hybrid Architecture)**: Implemented Google Gemini cloud reasoning, removed OmniRoute, and integrated 13 native local Swift services for desktop execution, ScreenCaptureKit, on-device Vision OCR, and SQLite memory.
 - **Fragment 3 (Voice & Push-to-Talk)**: Implemented global Hold-Control push-to-talk, `AVAudioEngine` capture, VAD RMS metering, Apple `Speech` STT, `AVSpeechSynthesizer` natural TTS, and instant speech interruption.
 - **Official Branding & Mascot Integration**: Integrated official white robot mascot with glowing cyan eyes across app icons, vector templates, menu bar, and companion views.
 - **Fragment 4 (Screen Intelligence)**: Implemented native ScreenCaptureKit capture across multi-display virtual spaces, Retina downsampling, window discovery, and multimodal Gemini visual analysis.
@@ -40,7 +40,7 @@ Across all 7 development fragments:
 | Fragment | Domain | Status | Tests |
 | :--- | :--- | :--- | :--- |
 | **Fragment 1** | Foundation, Architecture & Native macOS App | **Complete** | 10 Passing |
-| **Fragment 2** | AI Engine (Gemini & OmniRoute) | **Complete** | 15 Passing |
+| **Fragment 2** | AI Engine (Gemini & Hybrid Architecture) | **Complete** | 15 Passing |
 | **Fragment 3** | Live Voice & Push-to-Talk (Hold-Control) | **Complete** | 8 Passing |
 | **Brand Assets**| Official Mascot Branding & App Icons | **Complete** | 3 Passing |
 | **Fragment 4** | Screen Capture & Visual Intelligence | **Complete** | 8 Passing |
@@ -64,14 +64,14 @@ Ran via `swift run AUTO --test`:
   [PASS] Gemini Generate & Spatial Points & Tokens
   [PASS] Gemini 403 Auth Error Mapping
   [PASS] Gemini 429 Rate Limit Error Mapping
-  [PASS] OmniRoute Model Discovery (OpenAI Format)
-  [PASS] OmniRoute Chat Completions & Spatial Tagging
-  [PASS] OmniRoute 502 Bad Gateway Error Mapping
+  [PASS] Gemini Intent Interpretation & Structured Actions
+  [PASS] Local Action Validation & Bounds Clamping
+  [PASS] Local Apple Vision OCR Engine
   [PASS] SpatialPoint Regex Point Parsing
   [PASS] PromptManager Template Generation
   [PASS] ConversationMemory History Limits & Pruning
   [PASS] Task-Based AI Routing Resolution
-  [PASS] OmniRoute Fallback to Gemini
+  [PASS] Local Offline Behavior & Fixed Commands
   [PASS] ImageProcessor Screenshot Compression
   [PASS] Mock Keychain Storage & Deletion
   [PASS] Push-to-Talk Press and Release Detection

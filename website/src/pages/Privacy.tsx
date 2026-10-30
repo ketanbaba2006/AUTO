@@ -80,9 +80,9 @@ export const PrivacyPage: React.FC = () => {
                   <td style={{ padding: '14px 16px' }}>Per Google AI Studio policy</td>
                 </tr>
                 <tr>
-                  <td style={{ padding: '14px 16px', fontWeight: 600 }}>OmniRoute Local (Optional)</td>
-                  <td style={{ padding: '14px 16px', color: '#4ADE80' }}>Local Machine (Ollama)</td>
-                  <td style={{ padding: '14px 16px', color: '#4ADE80' }}>Localhost HTTP</td>
+                  <td style={{ padding: '14px 16px', fontWeight: 600 }}>Apple Vision OCR & Execution</td>
+                  <td style={{ padding: '14px 16px', color: '#4ADE80' }}>Local Machine (Apple Silicon)</td>
+                  <td style={{ padding: '14px 16px', color: '#4ADE80' }}>In-Memory IPC</td>
                   <td style={{ padding: '14px 16px' }}>100% Local & Offline</td>
                 </tr>
               </tbody>
@@ -113,7 +113,7 @@ export const PrivacyPage: React.FC = () => {
               Hardware Keychain Security
             </h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.6 }}>
-              Your Google Gemini and OmniRoute API keys are encrypted via macOS Keychain Services (<code>kSecClassGenericPassword</code>). Keys are never stored in plaintext, never written to preferences, and never printed to logs.
+              Your Google Gemini API key is encrypted via macOS Keychain Services (<code>kSecClassGenericPassword</code>). Keys are never stored in plaintext, never written to preferences, and never printed to logs.
             </p>
           </div>
 

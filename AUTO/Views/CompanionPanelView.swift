@@ -276,9 +276,9 @@ public struct CompanionPanelView: View {
             // Active Engine Pill
             HStack(spacing: 4) {
                 Circle()
-                    .fill(appState.activeAIProvider == .gemini ? BrandTheme.Colors.cyan : BrandTheme.Colors.purple)
+                    .fill(appState.isOfflineMode ? Color.orange : BrandTheme.Colors.cyan)
                     .frame(width: 5, height: 5)
-                Text(appState.activeAIProvider == .gemini ? "Gemini" : "OmniRoute")
+                Text(appState.isOfflineMode ? "Local Engine" : "Gemini Hybrid")
                     .font(.system(size: 10, weight: .semibold, design: .rounded))
                     .foregroundColor(.white.opacity(0.85))
             }

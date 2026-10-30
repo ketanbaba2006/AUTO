@@ -55,7 +55,7 @@ export const ChangelogPage: React.FC = () => {
               </h4>
               <ul style={{ paddingLeft: '20px', fontSize: '14px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <li>Google Gemini API integration with streaming responses and token tracking.</li>
-                <li>Optional OmniRoute Gateway for local models (Ollama, LM Studio) and custom proxies.</li>
+                <li>Hybrid AI Architecture with 13 local Swift execution services and Zero-Screenshot privacy gating.</li>
                 <li>Dynamic task-based AI routing rules with automatic fallback to Gemini.</li>
                 <li>Hardware-backed encryption for all provider keys via macOS Keychain.</li>
               </ul>

@@ -68,12 +68,25 @@ AUTO/
 │   └── OverlayWindowManager.swift        // Multi-monitor pass-through overlay windows
 ├── AI/
 │   ├── AIProvider.swift                  // AI provider protocol
-│   ├── AIProviderManager.swift           // Central router with task-based routing & fallback
+│   ├── AIProviderManager.swift           // Central AI manager with Zero-Screenshot privacy gating
 │   ├── GeminiProvider.swift              // Production Google Gemini API client
-│   ├── OmniRouteProvider.swift           // OpenAI-compatible OmniRoute client
 │   ├── ModelDiscoveryManager.swift       // Dynamic model querying and caching
 │   ├── PromptManager.swift               // Structured system prompts, injection defenses, action tags
 │   └── ImageProcessor.swift              // Image payload downsampling & base64 encoding
+├── LocalEngine/
+│   ├── AutoExecutionEngine.swift         // Central local execution coordinator
+│   ├── AutoToolRegistry.swift            // Modular catalog of 16+ built-in local tools
+│   ├── AutoActionValidator.swift         // Coordinate bounds clamping and injection firewall
+│   ├── AutoTaskManager.swift             // Multi-step task planner and dependency tracker
+│   ├── AutoMemoryManager.swift           // Native SQLite local storage with regex sensitive firewall
+│   ├── AutoConversationManager.swift     // Local turn storage and history compaction
+│   ├── AutoScreenManager.swift           // ScreenCaptureKit capture and Apple Vision on-device OCR
+│   ├── AutoCursorManager.swift           // Cubic Bezier cursor trajectories and clicks
+│   ├── AutoKeyboardManager.swift         // CGEvent keyboard typing and hotkeys
+│   ├── AutoVoiceManager.swift            // AVFoundation, Apple Speech, and offline voice parser
+│   ├── AutoFileManager.swift             // Sandboxed safe directory file operations
+│   ├── AutoSafetyManager.swift           // 3-tier risk gating and instant Emergency Stop (<10ms)
+│   └── AutoResultVerifier.swift          // Native post-execution outcome verification
 ├── Agent/
 │   ├── AgentManager.swift                // Autonomous companion agent coordinator
 │   ├── AgentOrchestrator.swift           // Multi-step task execution coordinator & lifecycle
@@ -145,7 +158,7 @@ AUTO/
 ## 3. Seven Fragments Development Roadmap
 
 - **Fragment 1**: Foundation, Architecture and Native macOS Application (*Complete*)
-- **Fragment 2**: Complete AI Engine, Gemini and OmniRoute Integration (*Complete*)
+- **Fragment 2**: Complete AI Engine, Google Gemini API & Hybrid Architecture (*Complete*)
 - **Fragment 3**: Live Voice Conversations, Push-to-Talk and Natural AI Speech (*Complete*)
 - **Fragment 4**: Screen Capture, Screen Sharing and Visual Intelligence (*Complete*)
 - **Fragment 5**: Cursor Intelligence, Mouse Control and Visual Interaction (*Complete*)
