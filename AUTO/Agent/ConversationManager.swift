@@ -139,9 +139,7 @@ public final class ConversationManager: ObservableObject {
             appState.voiceState = .idle
             appState.statusMessage = "Cancelled"
         } catch {
-            appState.voiceState = .idle
-            appState.statusMessage = "AI Error: \(error.localizedDescription)"
-            AppLogger.shared.error("Streaming error: \(error)", category: .agent)
+            handleAIError(error, userText: promptText)
         }
         
         isStreaming = false
@@ -155,9 +153,60 @@ public final class ConversationManager: ObservableObject {
             appState.voiceState = .idle
             appState.statusMessage = "Cancelled"
         } catch {
-            appState.voiceState = .idle
-            appState.statusMessage = "AI Error: \(error.localizedDescription)"
-            AppLogger.shared.error("Generate error: \(error)", category: .agent)
+            handleAIError(error, userText: promptText)
+        }
+    }
+    
+    private func handleAIError(_ error: Error, userText: String) {
+        appState.voiceState = .idle
+        AppLogger.shared.error("AI Error occurred during turn: \(error)", category: .agent)
+        
+        let friendlyMessage: String
+        let statusBadge: String
+        
+        if let autoError = error as? AUTOError {
+            switch autoError {
+            case .invalidConfiguration(let detail) where detail.contains("Gemini API key"):
+                statusBadge = "API Key Required"
+                friendlyMessage = "Google Gemini API key is missing. Please open Settings (⌘,) -> Gemini to paste your free API key from Google AI Studio."
+            case .authenticationFailed:
+                statusBadge = "Authentication Failed"
+                friendlyMessage = "Gemini API key authentication failed. Please check your key in Settings -> Gemini."
+            case .rateLimitExceeded(_, let retryAfter):
+                statusBadge = "Rate Limit Exceeded"
+                let waitSec = retryAfter != nil ? " Please wait \(Int(retryAfter!)) seconds." : ""
+                friendlyMessage = "Gemini rate limit exceeded.\(waitSec)"
+            case .networkError, .serverUnavailable, .requestTimeout:
+                statusBadge = "Network Offline"
+                friendlyMessage = "Cannot connect to Google Gemini. Please check your network connection or use offline voice commands."
+            default:
+                statusBadge = "AI Error"
+                friendlyMessage = "AI Error: \(autoError.localizedDescription)"
+            }
+        } else {
+            let desc = error.localizedDescription
+            if desc.contains("Gemini API key") {
+                statusBadge = "API Key Required"
+                friendlyMessage = "Google Gemini API key is missing. Please open Settings (⌘,) -> Gemini to paste your free API key from Google AI Studio."
+            } else {
+                statusBadge = "AI Error"
+                friendlyMessage = "AI Error: \(desc)"
+            }
+        }
+        
+        appState.statusMessage = statusBadge
+        appState.currentResponseText = friendlyMessage
+        
+        let turn = ConversationTurn(
+            userTranscript: userText,
+            assistantResponse: friendlyMessage,
+            targetPoint: nil
+        )
+        memory.addTurn(turn, maxLimit: appState.maxHistoryTurns)
+        self.turns = memory.getRecentTurns()
+        
+        if appState.voicePreferences.autoSpeakResponse {
+            SpeechOutputManager.shared.speak(text: friendlyMessage)
         }
     }
     
