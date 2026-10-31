@@ -86,3 +86,4 @@ graph TD
 ### 13. `AutoResultVerifier`
 - **Location**: [`AUTO/LocalEngine/AutoResultVerifier.swift`](file:///Users/ketanbaba/Desktop/Extra/AUTO/AUTO/LocalEngine/AutoResultVerifier.swift)
 - **Role**: Validates action execution by comparing UI state before and after action dispatch (via `NSWorkspace` running apps and Accessibility hierarchy).
+

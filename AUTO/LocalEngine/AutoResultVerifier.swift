@@ -36,3 +36,4 @@ public final class AutoResultVerifier: @unchecked Sendable {
         return AutoVerificationOutcome(isSuccess: true, detail: "Action execution verified successfully.", observedActiveApp: frontApp)
     }
 }
+

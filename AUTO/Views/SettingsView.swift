@@ -300,7 +300,7 @@ public struct SettingsView: View {
                     .foregroundColor(.white)
                 
                 HStack(spacing: 8) {
-                    TextField("Model ID (e.g. gemini-2.5-flash)", text: $appState.geminiConfig.selectedModelId)
+                    TextField("Model ID (e.g. gemini-3.8-flash)", text: $appState.geminiConfig.selectedModelId)
                         .textFieldStyle(.plain)
                         .font(.system(size: 12))
                         .padding(8)

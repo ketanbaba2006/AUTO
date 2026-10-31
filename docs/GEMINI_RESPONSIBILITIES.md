@@ -60,9 +60,9 @@ Gemini has **no direct access to macOS system APIs**, no shell execution capabil
 All communication between AUTO and Google Gemini occurs via HTTPS using the official Gemini REST endpoints (`generativelanguage.googleapis.com`):
 
 - **Model Families Supported**:
-  - `gemini-2.5-flash`: Fast, efficient, multimodal default for interactive tasks.
-  - `gemini-2.5-pro`: Deep reasoning and complex multi-step dependency planning.
-  - `gemini-2.0-flash`: Ultra-low latency conversational assistant.
+  - `gemini-3.8-flash`: Fast, efficient, multimodal default for interactive tasks.
+  - `gemini-pro-latest`: Deep reasoning and complex multi-step dependency planning.
+  - `gemini-3.5-flash`: Ultra-low latency conversational assistant.
 
 - **Payload Sanitization**:
   Before any prompt payload is dispatched to Gemini:
@@ -78,3 +78,4 @@ System prompts provided to Gemini include strict delimitations and defense patte
 - System instructions are strictly segregated from user input and screen-extracted text.
 - External screen content is treated as untrusted data wrapped in `<untrusted_screen_content>` XML tags.
 - Gemini is instructed to ignore any instructions found embedded within screen text that attempt to hijack the assistant's behavior.
+

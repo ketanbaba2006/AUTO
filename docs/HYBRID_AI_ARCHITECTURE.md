@@ -100,3 +100,4 @@ flowchart TD
 | **Credential Safety** | API keys and session tokens stored on remote servers | macOS Keychain Services (`kSecClassGenericPassword`) |
 | **Local Memory** | Cloud database sync | Local on-device SQLite database with sensitive credential filter |
 | **Offline Capability** | Non-functional without internet | Local screen OCR, voice commands, mouse/keyboard, memory fully functional |
+

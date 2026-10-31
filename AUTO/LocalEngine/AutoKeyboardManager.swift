@@ -45,3 +45,4 @@ public final class AutoKeyboardManager: @unchecked Sendable {
         up?.post(tap: .cghidEventTap)
     }
 }
+

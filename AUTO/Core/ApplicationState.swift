@@ -152,7 +152,20 @@ public final class ApplicationState: ObservableObject {
         // Gemini Config
         if let data = UserDefaults.standard.data(forKey: "com.auto.geminiConfig"),
            let decoded = try? JSONDecoder().decode(AIProviderConfiguration.self, from: data) {
-            self.geminiConfig = decoded
+            // Remap model ids retired by the provider so saved settings never
+            // keep pointing at a dead endpoint.
+            let migratedModelId = AIProviderType.migrateLegacyModelId(decoded.selectedModelId)
+            if migratedModelId != decoded.selectedModelId {
+                AppLogger.shared.notice("Migrating retired AI model '\(decoded.selectedModelId)' → '\(migratedModelId)'.", category: .ai)
+                var migratedConfig = decoded
+                migratedConfig.selectedModelId = migratedModelId
+                self.geminiConfig = migratedConfig
+                if let encoded = try? JSONEncoder().encode(migratedConfig) {
+                    UserDefaults.standard.set(encoded, forKey: "com.auto.geminiConfig")
+                }
+            } else {
+                self.geminiConfig = decoded
+            }
         } else {
             self.geminiConfig = .defaultGeminiConfig()
         }

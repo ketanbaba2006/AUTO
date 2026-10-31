@@ -81,3 +81,4 @@ All memory is stored in:
 - Managed using native SQLite C-bindings (`import SQLite3`).
 - Partitioned into structured categories: `preferences`, `context`, `task_history`, and `facts`.
 - Users can view, search, export, or completely purge local memory at any time with one click in **Settings -> Privacy**.
+

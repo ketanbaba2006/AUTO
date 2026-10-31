@@ -56,3 +56,4 @@ public final class AutoConversationManager: @unchecked Sendable {
         turns.removeAll()
     }
 }
+

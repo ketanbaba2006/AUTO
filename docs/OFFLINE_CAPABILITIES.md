@@ -47,3 +47,4 @@ When a user issues a complex, open-ended instruction that requires high-level co
 2. The companion voice speaks a transparent status message:
    *"I am currently operating in local offline mode without an internet connection. I can capture your screen, read text, or move the cursor, but complex reasoning requires Google Gemini. Please check your network connection."*
 3. The Companion UI displays a clear offline indicator and status banner without freezing or crashing.
+

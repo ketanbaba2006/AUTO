@@ -34,7 +34,7 @@ final class GeminiProviderTests: XCTestCase {
         let mockJSON = """
         {
             "models": [
-                { "name": "models/gemini-2.5-flash", "displayName": "Gemini 2.5 Flash", "supportedGenerationMethods": ["generateContent"] }
+                { "name": "models/gemini-3.8-flash", "displayName": "Gemini 3.8 Flash", "supportedGenerationMethods": ["generateContent"] }
             ]
         }
         """.data(using: .utf8)!
@@ -53,8 +53,8 @@ final class GeminiProviderTests: XCTestCase {
         let mockJSON = """
         {
             "models": [
-                { "name": "models/gemini-2.5-flash", "displayName": "Gemini 2.5 Flash", "inputTokenLimit": 1000000, "supportedGenerationMethods": ["generateContent"] },
-                { "name": "models/gemini-2.5-pro", "displayName": "Gemini 2.5 Pro", "inputTokenLimit": 2000000, "supportedGenerationMethods": ["generateContent"] }
+                { "name": "models/gemini-3.8-flash", "displayName": "Gemini 3.8 Flash", "inputTokenLimit": 1000000, "supportedGenerationMethods": ["generateContent"] },
+                { "name": "models/gemini-3.8-pro", "displayName": "Gemini 3.8 Pro", "inputTokenLimit": 2000000, "supportedGenerationMethods": ["generateContent"] }
             ]
         }
         """.data(using: .utf8)!
@@ -66,8 +66,8 @@ final class GeminiProviderTests: XCTestCase {
         
         let models = try await provider.fetchAvailableModels()
         XCTAssertEqual(models.count, 2)
-        XCTAssertEqual(models[0].id, "gemini-2.5-flash")
-        XCTAssertEqual(models[1].id, "gemini-2.5-pro")
+        XCTAssertEqual(models[0].id, "gemini-3.8-flash")
+        XCTAssertEqual(models[1].id, "gemini-3.8-pro")
         XCTAssertTrue(models[0].supportsVision)
     }
     

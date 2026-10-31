@@ -71,9 +71,9 @@ The Gemini integration is implemented in [`AUTO/AI/GeminiProvider.swift`](file:/
 - **SSE Streaming**: `POST https://generativelanguage.googleapis.com/v1beta/models/{modelId}:streamGenerateContent?alt=sse&key={apiKey}`
 
 ### 3.2 Supported Models
-- **`gemini-2.5-flash`** (Default): Fast, multimodal, ultra-responsive model optimized for real-time desktop interactions.
-- **`gemini-2.5-pro`**: High-capacity reasoning model for complex multi-step workflows.
-- **`gemini-2.0-flash`**: High-speed conversational fallback.
+- **`gemini-3.8-flash`** (Default): Fast, multimodal, ultra-responsive model optimized for real-time desktop interactions.
+- **`gemini-pro-latest`**: High-capacity reasoning model for complex multi-step workflows.
+- **`gemini-3.5-flash`**: High-speed conversational fallback.
 
 ### 3.3 Token Usage Tracking
 Gemini's `usageMetadata` (`promptTokenCount`, `candidatesTokenCount`, `totalTokenCount`) is decoded and published via `ApplicationState.shared.lastTokenUsage` for live visibility in Settings.

@@ -34,7 +34,7 @@ Google Gemini is the primary reasoning and screen understanding engine for AUTO.
 ## 3. Selecting Models
 
 In the **Gemini** tab:
-- **Default Recommended Model**: `gemini-2.5-flash` (fastest latency, multimodal vision, high rate limit).
-- **Complex Reasoning Model**: `gemini-2.5-pro` (deeper reasoning on complex desktop states).
+- **Default Recommended Model**: `gemini-3.8-flash` (fastest latency, multimodal vision, high rate limit).
+- **Complex Reasoning Model**: `gemini-pro-latest` (deeper reasoning on complex desktop states).
 - **Dynamic Model Discovery**: Click **Fetch Models** to query Google's live catalog and dynamically update the available models.
 

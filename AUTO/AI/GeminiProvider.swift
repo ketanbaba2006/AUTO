@@ -102,7 +102,7 @@ public final class GeminiProvider: AIProvider, @unchecked Sendable {
         
         return filtered.map { entry in
             let cleanId = entry.name.replacingOccurrences(of: "models/", with: "")
-            let isDefault = cleanId == "gemini-2.5-flash"
+            let isDefault = cleanId == "gemini-3.8-flash"
             return AIModelInfo(
                 id: cleanId,
                 displayName: entry.displayName ?? cleanId,
@@ -117,9 +117,9 @@ public final class GeminiProvider: AIProvider, @unchecked Sendable {
     }
     
     public static let fallbackModels: [AIModelInfo] = [
-        AIModelInfo(id: "gemini-2.5-flash", displayName: "Gemini 2.5 Flash", provider: .gemini, supportsVision: true, isDefault: true),
-        AIModelInfo(id: "gemini-2.5-pro", displayName: "Gemini 2.5 Pro", provider: .gemini, supportsVision: true),
-        AIModelInfo(id: "gemini-2.0-flash", displayName: "Gemini 2.0 Flash", provider: .gemini, supportsVision: true)
+        AIModelInfo(id: "gemini-3.8-flash", displayName: "Gemini 3.8 Flash", provider: .gemini, supportsVision: true, isDefault: true),
+        AIModelInfo(id: "gemini-3.5-flash", displayName: "Gemini 3.5 Flash", provider: .gemini, supportsVision: true),
+        AIModelInfo(id: "gemini-pro-latest", displayName: "Gemini Pro (Latest)", provider: .gemini, supportsVision: true)
     ]
     
     private func defaultGeminiFallbackModels() -> [AIModelInfo] {
@@ -387,7 +387,7 @@ public final class GeminiProvider: AIProvider, @unchecked Sendable {
         case 401, 403:
             return AUTOError.authenticationFailed(provider: "Gemini", detail: "Invalid API key or insufficient permissions.")
         case 404:
-            return AUTOError.modelNotFound(modelId: "Requested model endpoint not found.")
+            return AUTOError.modelNotFound(modelId: "The selected model is no longer available (\(detailMessage)). Open AUTO Settings and pick a different model.")
         case 429:
             return AUTOError.rateLimitExceeded(provider: "Gemini", retryAfter: 15.0)
         case 500, 503, 504:

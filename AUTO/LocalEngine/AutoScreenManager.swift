@@ -111,3 +111,4 @@ public final class AutoScreenManager: @unchecked Sendable {
         }
     }
 }
+

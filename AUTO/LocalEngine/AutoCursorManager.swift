@@ -59,3 +59,4 @@ public final class AutoCursorManager: @unchecked Sendable {
         click(at: target)
     }
 }
+

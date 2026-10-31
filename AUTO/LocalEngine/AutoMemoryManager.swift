@@ -175,3 +175,4 @@ public final class AutoMemoryManager: @unchecked Sendable {
         sqlite3_exec(db, "DELETE FROM auto_memories; DELETE FROM auto_conversations; DELETE FROM auto_tasks;", nil, nil, nil)
     }
 }
+

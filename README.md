@@ -137,7 +137,7 @@ flowchart TD
 <summary><b>6. ⚡ Hybrid AI Architecture: Gemini Reasoning + Native Local Swift Engine (Click to expand)</b></summary>
 <br/>
 
-- **Cloud Reasoning**: Google Gemini API (`gemini-2.5-flash` / `gemini-2.5-pro`) providing high-speed natural language understanding, intent parsing, and step planning.
+- **Cloud Reasoning**: Google Gemini API (`gemini-3.8-flash` / `gemini-pro-latest`) providing high-speed natural language understanding, intent parsing, and step planning.
 - **Local Native Engine**: 13 local Swift services handling 100% of desktop execution, ScreenCaptureKit, on-device Apple Vision OCR, and SQLite persistent storage.
 - **Hardware-Backed Keychain**: All API keys are encrypted in Apple's hardware Secure Enclave / Keychain services with `kSecAttrAccessibleWhenUnlockedThisDeviceOnly`.
 

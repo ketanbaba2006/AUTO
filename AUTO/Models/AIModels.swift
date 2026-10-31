@@ -16,7 +16,20 @@ public enum AIProviderType: String, Codable, CaseIterable, Identifiable, Sendabl
     public var defaultModelId: String {
         switch self {
         case .gemini:
-            return "gemini-2.5-flash"
+            return "gemini-3.8-flash"
+        }
+    }
+
+    /// Remaps model ids retired by Google to their current-generation equivalents.
+    /// Keeps persisted configurations (UserDefaults) from pointing at dead endpoints.
+    public static func migrateLegacyModelId(_ id: String) -> String {
+        switch id {
+        case "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash":
+            return "gemini-3.8-flash"
+        case "gemini-2.5-pro", "gemini-2.0-pro", "gemini-1.5-pro":
+            return "gemini-pro-latest"
+        default:
+            return id
         }
     }
 }
@@ -102,7 +115,7 @@ public struct AIProviderConfiguration: Codable, Equatable, Sendable {
             providerType: .gemini,
             isEnabled: true,
             endpointURL: "https://generativelanguage.googleapis.com/v1beta",
-            selectedModelId: "gemini-2.5-flash",
+            selectedModelId: "gemini-3.8-flash",
             temperature: 0.7,
             maxOutputTokens: 2048,
             timeoutInterval: 30.0,

@@ -98,3 +98,4 @@ public final class AutoVoiceManager: NSObject, @unchecked Sendable, AVSpeechSynt
         lock.unlock()
     }
 }
+
